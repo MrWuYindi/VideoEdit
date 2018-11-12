@@ -8,6 +8,13 @@
 
 #import <UIKit/UIKit.h>
 
+typedef enum : NSUInteger {
+    VideoStateVoiceConfig,  // 混音设置
+    VideoStateVideoClip,    // 裁剪影片
+} VideoState;
+
 @interface XNGVideoEditVC : UIViewController
+
+@property (nonatomic, assign) VideoState videoState;
 
 @end
