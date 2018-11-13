@@ -12,24 +12,28 @@
 #define cellId   @"XNGVideoClipViewCellId"
 
 @interface XNGVideoClipView ()<UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout> {
-    NSInteger beginIndex;   // 刚开始构建为0，从0开始播放；当滑动时根据contentOffSet计算beginIndex,单位是秒
+    NSInteger beginIndex;   // 刚开始构建为0，从0开始播放；当滑动时根据contentOffSet计算beginIndex,单位是秒，代表着滑块在初始位置
 }
 
+// 边框布局控件
 @property (weak, nonatomic) IBOutlet UIView *topLineView;
 @property (weak, nonatomic) IBOutlet UIView *bottomLineView;
 @property (weak, nonatomic) IBOutlet UIView *leftLineView;
 @property (weak, nonatomic) IBOutlet UIView *rightLineView;
-
+// 时间显示控件
 @property (weak, nonatomic) IBOutlet UILabel *startTimeLabel;
 @property (weak, nonatomic) IBOutlet UILabel *endTimeLabel;
-
+// collectionView 相关
 @property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
 @property (nonatomic, strong) NSMutableArray * imageSource;
+// 进度滑块定时器
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *sliderLeftConstraint;
 
 @end
 
 @implementation XNGVideoClipView
 
+#pragma mark Lift-Cycle
 - (instancetype)initWithFrame:(CGRect)frame imageSource:(NSArray *)images {
     self = [super initWithFrame:frame];
     if (self) {
@@ -39,9 +43,12 @@
         self.imageSource = [NSMutableArray arrayWithArray:images];
         [self collectionViewConfig];
         [self layoutLineView];
+//        self.sliderLeftConstraint.constant = 50.f;
     }
     return self;
 }
+
+#pragma mark Private-Method
 
 /**
  collectionView 基本配置
@@ -49,6 +56,7 @@
 - (void)collectionViewConfig {
     self.collectionView.dataSource = self;
     self.collectionView.delegate = self;
+    self.collectionView.showsHorizontalScrollIndicator = NO;
     // 注册cell
     [_collectionView registerClass:[XNGVideoClipViewCell class] forCellWithReuseIdentifier:cellId];
 }
@@ -98,7 +106,7 @@
 
 // 指定section中的collectionViewCell的个数
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return 20;
+    return 2000;
 }
 
 // 配置section中的collectionViewCell的显示
@@ -115,7 +123,7 @@
 
 //每个cell的大小，因为有indexPath，所以可以判断哪一组，或者哪一个item，可一个给特定的大小，等同于layout的itemSize属性
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    return CGSizeMake(40, 70); // 宽度不确定需要确定30面显示多少张图片，再用屏幕宽度减去20除以图片张数就是图片的宽度
+    return CGSizeMake(40, 60); // 宽度不确定需要确定30面显示多少张图片，再用屏幕宽度减去20除以图片张数就是图片的宽度
 }
 
 // 设置整个组的缩进量是多少

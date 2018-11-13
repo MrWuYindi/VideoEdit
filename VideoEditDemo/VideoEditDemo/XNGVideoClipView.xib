@@ -23,42 +23,42 @@
                     </constraints>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dFa-6E-ceu">
-                    <rect key="frame" x="10" y="30" width="3" height="75"/>
+                    <rect key="frame" x="10" y="39" width="3" height="66"/>
                     <color key="backgroundColor" red="0.8784313725490196" green="0.8784313725490196" blue="0.8784313725490196" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <constraints>
-                        <constraint firstAttribute="height" constant="75" id="USP-Of-U3T"/>
+                        <constraint firstAttribute="height" constant="66" id="USP-Of-U3T"/>
                         <constraint firstAttribute="width" constant="3" id="d8W-LF-aSC"/>
                     </constraints>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pSD-W3-hSk">
-                    <rect key="frame" x="362" y="30" width="3" height="75"/>
+                    <rect key="frame" x="362" y="39" width="3" height="66"/>
                     <color key="backgroundColor" red="0.8784313725490196" green="0.8784313725490196" blue="0.8784313725490196" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <constraints>
-                        <constraint firstAttribute="height" constant="75" id="8Q1-M0-xoZ"/>
+                        <constraint firstAttribute="height" constant="66" id="8Q1-M0-xoZ"/>
                         <constraint firstAttribute="width" constant="3" id="OHZ-yC-UiA"/>
                     </constraints>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ISR-b4-Py9">
-                    <rect key="frame" x="10" y="30" width="355" height="3"/>
+                    <rect key="frame" x="10" y="39" width="355" height="3"/>
                     <color key="backgroundColor" red="0.8784313725490196" green="0.8784313725490196" blue="0.8784313725490196" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="3" id="DDX-X6-DhO"/>
                     </constraints>
                 </view>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bcP-pb-Jc2">
-                    <rect key="frame" x="10" y="9" width="46" height="21"/>
+                    <rect key="frame" x="10" y="18" width="46" height="21"/>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                     <color key="textColor" red="0.25098039215686274" green="0.25098039215686274" blue="0.25098039215686274" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:30" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zXM-YJ-pWe">
-                    <rect key="frame" x="319" y="9" width="46" height="21"/>
+                    <rect key="frame" x="319" y="18" width="46" height="21"/>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                     <color key="textColor" red="0.25098039215686274" green="0.25098039215686274" blue="0.25098039215686274" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="5Oc-9f-PzG">
-                    <rect key="frame" x="13" y="33" width="349" height="69"/>
+                    <rect key="frame" x="13" y="42" width="349" height="60"/>
                     <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="YDB-0H-o8O">
                         <size key="itemSize" width="50" height="50"/>
@@ -68,7 +68,7 @@
                     </collectionViewFlowLayout>
                 </collectionView>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="udI-nR-fSv">
-                    <rect key="frame" x="13" y="33" width="3" height="69"/>
+                    <rect key="frame" x="13" y="42" width="3" height="60"/>
                     <color key="backgroundColor" red="1" green="0.12549019607843137" blue="0.39215686274509803" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="3" id="poL-0n-UTB"/>
@@ -112,6 +112,7 @@
                 <outlet property="endTimeLabel" destination="zXM-YJ-pWe" id="j1M-7Z-1wd"/>
                 <outlet property="leftLineView" destination="dFa-6E-ceu" id="ujk-Gh-dos"/>
                 <outlet property="rightLineView" destination="pSD-W3-hSk" id="fkS-lT-KRn"/>
+                <outlet property="sliderLeftConstraint" destination="bm2-3U-heN" id="WNY-Mr-8uE"/>
                 <outlet property="startTimeLabel" destination="bcP-pb-Jc2" id="jZo-Pw-sPF"/>
                 <outlet property="topLineView" destination="ISR-b4-Py9" id="LAs-rp-3fY"/>
             </connections>

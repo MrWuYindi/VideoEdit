@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB" customClass="XNGVideoEditTabView">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="75"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="video_edit_intercept" translatesAutoresizingMaskIntoConstraints="NO" id="Ick-PK-QG5">
+                    <rect key="frame" x="84" y="5" width="20" height="20"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="20" id="0MO-Jr-6lP"/>
+                        <constraint firstAttribute="width" constant="20" id="oJB-Ul-vEj"/>
+                    </constraints>
+                </imageView>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="混音设置" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TEQ-ti-S37">
+                    <rect key="frame" x="67.5" y="30" width="53.5" height="16"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                    <color key="textColor" red="1" green="0.12549019607843137" blue="0.39215686274509803" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="video_edit_music_gray" translatesAutoresizingMaskIntoConstraints="NO" id="PFC-U3-0oK">
+                    <rect key="frame" x="271.5" y="5" width="20" height="20"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="20" id="Doh-aa-r1E"/>
+                        <constraint firstAttribute="width" constant="20" id="OnM-qE-4uI"/>
+                    </constraints>
+                </imageView>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="裁剪影片" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vMT-L3-wAH">
+                    <rect key="frame" x="255" y="30.5" width="53.5" height="16"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                    <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <button opaque="NO" tag="105" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GgI-VH-tGE">
+                    <rect key="frame" x="0.0" y="0.0" width="187.5" height="75"/>
+                    <connections>
+                        <action selector="tabbarSelectItem:" destination="iN0-l3-epB" eventType="touchUpInside" id="ljH-dK-9yk"/>
+                    </connections>
+                </button>
+                <button opaque="NO" tag="106" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kAW-4y-qK1">
+                    <rect key="frame" x="187.5" y="0.0" width="187.5" height="75"/>
+                    <connections>
+                        <action selector="tabbarSelectItem:" destination="iN0-l3-epB" eventType="touchUpInside" id="kj4-tF-GeJ"/>
+                    </connections>
+                </button>
+            </subviews>
+            <color key="backgroundColor" red="0.10980392156862745" green="0.10588235294117647" blue="0.12549019607843137" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="PFC-U3-0oK" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="5" id="2a2-ds-X6I"/>
+                <constraint firstItem="GgI-VH-tGE" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="5Kv-bk-ena"/>
+                <constraint firstItem="vMT-L3-wAH" firstAttribute="centerY" secondItem="TEQ-ti-S37" secondAttribute="centerY" id="BFi-PS-7z3"/>
+                <constraint firstItem="Ick-PK-QG5" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="5" id="Hxk-YK-fZS"/>
+                <constraint firstItem="kAW-4y-qK1" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="Mxa-cb-t4F"/>
+                <constraint firstItem="GgI-VH-tGE" firstAttribute="width" secondItem="iN0-l3-epB" secondAttribute="width" multiplier="1/2" id="NOn-Ti-jHB"/>
+                <constraint firstItem="TEQ-ti-S37" firstAttribute="top" secondItem="Ick-PK-QG5" secondAttribute="bottom" constant="5" id="RvB-Dp-aoQ"/>
+                <constraint firstItem="Ick-PK-QG5" firstAttribute="centerX" secondItem="TEQ-ti-S37" secondAttribute="centerX" id="cyf-zT-Odt"/>
+                <constraint firstItem="GgI-VH-tGE" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="eQC-G6-wfV"/>
+                <constraint firstItem="PFC-U3-0oK" firstAttribute="centerX" secondItem="vMT-L3-wAH" secondAttribute="centerX" id="ffe-je-Vf5"/>
+                <constraint firstAttribute="trailing" secondItem="kAW-4y-qK1" secondAttribute="trailing" id="fqM-NL-l40"/>
+                <constraint firstAttribute="bottom" secondItem="kAW-4y-qK1" secondAttribute="bottom" id="nld-D0-zt8"/>
+                <constraint firstItem="kAW-4y-qK1" firstAttribute="leading" secondItem="GgI-VH-tGE" secondAttribute="trailing" id="npL-0m-rYU"/>
+                <constraint firstItem="PFC-U3-0oK" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" multiplier="1.5" id="qq8-Gh-5pa"/>
+                <constraint firstItem="Ick-PK-QG5" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" multiplier="1/2" id="yDJ-aU-W4W"/>
+                <constraint firstAttribute="bottom" secondItem="GgI-VH-tGE" secondAttribute="bottom" id="yLM-1x-QsT"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <connections>
+                <outlet property="videoImage" destination="PFC-U3-0oK" id="VcH-mF-4Q2"/>
+                <outlet property="videoLabel" destination="vMT-L3-wAH" id="Cj7-dZ-8Gj"/>
+                <outlet property="voiceImage" destination="Ick-PK-QG5" id="KRE-8c-qzK"/>
+                <outlet property="voiceLabel" destination="TEQ-ti-S37" id="pwm-5m-KJm"/>
+            </connections>
+            <point key="canvasLocation" x="33.5" y="76.5"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="video_edit_intercept" width="20" height="20"/>
+        <image name="video_edit_music_gray" width="20" height="20"/>
+    </resources>
+</document>

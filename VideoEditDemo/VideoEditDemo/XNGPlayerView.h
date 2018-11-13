@@ -10,8 +10,17 @@
 #import <AVKit/AVKit.h>
 #import <AVFoundation/AVFoundation.h>
 
+typedef enum : NSUInteger {
+    PlayerStateAcion,
+    PlayerStateStop,
+} PlayerState;
+
+typedef void(^PlayerViewClickHandler)(PlayerState state);
+
 @interface XNGPlayerView : UIView
 
 @property (nonatomic ,strong) AVPlayer *player;
+
+@property (nonatomic, copy) PlayerViewClickHandler playerViewClickHandler;
 
 @end

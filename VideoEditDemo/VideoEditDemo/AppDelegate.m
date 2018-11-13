@@ -7,7 +7,8 @@
 //
 
 #import "AppDelegate.h"
-#import "XNGVideoEditTabVC.h"
+#import "XNGVideoEditNavVC.h"
+#import "XNGVideoEditVC.h"
 
 @interface AppDelegate ()
 
@@ -19,8 +20,9 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    self.window.rootViewController = [XNGVideoEditTabVC new];
+    self.window.rootViewController = [[XNGVideoEditNavVC alloc] initWithRootViewController:[XNGVideoEditVC new]];
     [self.window makeKeyAndVisible];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
 
     return YES;
 }
