@@ -10,4 +10,6 @@
 
 @interface XNGVideoClipView : UIView
 
+- (instancetype)initWithFrame:(CGRect)frame imageSource:(NSArray *)images;
+
 @end

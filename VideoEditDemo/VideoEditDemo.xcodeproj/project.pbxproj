@@ -18,6 +18,7 @@
 		24293E902199774A008958B6 /* XNGVideoClipView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 24293E8F2199774A008958B6 /* XNGVideoClipView.xib */; };
 		24293E95219993D6008958B6 /* XNGVideoEditNavVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 24293E94219993D6008958B6 /* XNGVideoEditNavVC.m */; };
 		24293E982199942B008958B6 /* XNGVideoEditTabVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 24293E972199942B008958B6 /* XNGVideoEditTabVC.m */; };
+		24293E9C219A80AD008958B6 /* XNGVideoClipViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 24293E9B219A80AD008958B6 /* XNGVideoClipViewCell.m */; };
 		B1E2D117AD383D501E582F2A /* libPods-VideoEditDemo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A0F0CE346FA6923FAD5EEEF /* libPods-VideoEditDemo.a */; };
 /* End PBXBuildFile section */
 
@@ -45,6 +46,8 @@
 		24293E962199942B008958B6 /* XNGVideoEditTabVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XNGVideoEditTabVC.h; sourceTree = "<group>"; };
 		24293E972199942B008958B6 /* XNGVideoEditTabVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XNGVideoEditTabVC.m; sourceTree = "<group>"; };
 		24293E9921999A1E008958B6 /* XNGVideoEdit-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XNGVideoEdit-Prefix.pch"; sourceTree = "<group>"; };
+		24293E9A219A80AD008958B6 /* XNGVideoClipViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XNGVideoClipViewCell.h; sourceTree = "<group>"; };
+		24293E9B219A80AD008958B6 /* XNGVideoClipViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XNGVideoClipViewCell.m; sourceTree = "<group>"; };
 		6D95C06EDDA4DA362899B82E /* Pods-VideoEditDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoEditDemo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-VideoEditDemo/Pods-VideoEditDemo.debug.xcconfig"; sourceTree = "<group>"; };
 		FE9CF6DD108381652B331000 /* Pods-VideoEditDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoEditDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-VideoEditDemo/Pods-VideoEditDemo.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -97,6 +100,8 @@
 				24293E8421997207008958B6 /* XNGVoiceConfigView.h */,
 				24293E8521997207008958B6 /* XNGVoiceConfigView.m */,
 				24293E8D21997739008958B6 /* XNGVoiceConfigView.xib */,
+				24293E9A219A80AD008958B6 /* XNGVideoClipViewCell.h */,
+				24293E9B219A80AD008958B6 /* XNGVideoClipViewCell.m */,
 				24293E8721997249008958B6 /* XNGVideoClipView.h */,
 				24293E8821997249008958B6 /* XNGVideoClipView.m */,
 				24293E8F2199774A008958B6 /* XNGVideoClipView.xib */,
@@ -222,6 +227,7 @@
 				24293E69219924C0008958B6 /* AppDelegate.m in Sources */,
 				24293E8921997249008958B6 /* XNGVideoClipView.m in Sources */,
 				24293E8621997207008958B6 /* XNGVoiceConfigView.m in Sources */,
+				24293E9C219A80AD008958B6 /* XNGVideoClipViewCell.m in Sources */,
 				24293E7F21992562008958B6 /* XNGVideoEditVC.m in Sources */,
 				24293E8221995F85008958B6 /* XNGPlayerView.m in Sources */,
 			);

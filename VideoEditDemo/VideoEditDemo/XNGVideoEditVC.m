@@ -29,6 +29,7 @@
 @property (nonatomic, strong) UIButton *stateButton;    // 状态播放按钮
 
 @property (nonatomic, strong) XNGVoiceConfigView *voiceConfigView;
+@property (nonatomic, strong) XNGVideoClipView * videoClipView;
 
 @end
 
@@ -79,8 +80,17 @@
             make.width.mas_equalTo(KScreenWidth);
             make.height.mas_equalTo(85.f);
         }];
+        self.voiceConfigView.voiceConfigHandler = ^(AudioState state) {
+            
+        };
     } else {
-        
+        [self.view addSubview:self.videoClipView];
+        [self.videoClipView mas_remakeConstraints:^(MASConstraintMaker *make) {
+            __weak typeof(self) strongSelf = weakSelf;
+            make.bottom.equalTo(strongSelf.view).with.offset(-TabbarH);
+            make.width.mas_equalTo(KScreenWidth);
+            make.height.mas_equalTo(85.f);
+        }];
     }
 }
 
@@ -254,11 +264,15 @@
 - (XNGVoiceConfigView *)voiceConfigView {
     if (!_voiceConfigView) {
         _voiceConfigView = [[XNGVoiceConfigView alloc] initXNGViewWithFrame:CGRectMake(0, 0, KScreenWidth, 105.f)];
-        _voiceConfigView.voiceConfigHandler = ^(AudioState state) {
-            
-        };
     }
     return _voiceConfigView;
+}
+
+- (XNGVideoClipView *)videoClipView {
+    if (!_videoClipView) {
+        _videoClipView= [[XNGVideoClipView alloc] initWithFrame:CGRectMake(0, 0, KScreenWidth, 105.f) imageSource:@[]];
+    }
+    return _videoClipView;
 }
 
 - (NSDateFormatter *)dateFormatter {
