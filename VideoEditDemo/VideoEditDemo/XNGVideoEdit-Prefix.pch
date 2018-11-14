@@ -9,6 +9,9 @@
 #ifndef XNGVideoEdit_Prefix_pch
 #define XNGVideoEdit_Prefix_pch
 
+#import <UIKit/UIKit.h>
+
+
 // Include any system framework and library headers here that should be included in all compilation units.
 // You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
 
@@ -19,6 +22,8 @@
 #define TabbarH         self.tabBarController.tabBar.bounds.size.height
 #define KScreenWidth    [UIScreen mainScreen].bounds.size.width
 #define KScreenHeight   [UIScreen mainScreen].bounds.size.height
+
+#define AssetImageSize CGSizeMake(40, 60)
 
 // 用户选中背景音乐与原声之间的选择搭配
 #define XNGAudioStateTip    @"XNGAudioStateTip"

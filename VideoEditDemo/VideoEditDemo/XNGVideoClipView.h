@@ -12,4 +12,6 @@
 
 - (instancetype)initWithFrame:(CGRect)frame imageSource:(NSArray *)images;
 
+- (void)setModel:(NSMutableArray<UIImage *> *)imageSources;
+
 @end

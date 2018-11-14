@@ -25,7 +25,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *endTimeLabel;
 // collectionView 相关
 @property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
-@property (nonatomic, strong) NSMutableArray * imageSource;
+@property (nonatomic, strong) NSMutableArray<UIImage *> * imageSource;
 // 进度滑块定时器
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *sliderLeftConstraint;
 
@@ -39,8 +39,8 @@
     if (self) {
         self = [[NSBundle mainBundle] loadNibNamed:NSStringFromClass([self class]) owner:self options:nil][0];
         self.frame = frame;
+        self.imageSource = [NSMutableArray<UIImage *> array];
         beginIndex = 0;
-        self.imageSource = [NSMutableArray arrayWithArray:images];
         [self collectionViewConfig];
         [self layoutLineView];
 //        self.sliderLeftConstraint.constant = 50.f;
@@ -49,6 +49,11 @@
 }
 
 #pragma mark Private-Method
+
+- (void)setModel:(NSMutableArray<UIImage *> *)imageSources {
+    self.imageSource = imageSources;
+    [self.collectionView reloadData];
+}
 
 /**
  collectionView 基本配置
@@ -106,15 +111,14 @@
 
 // 指定section中的collectionViewCell的个数
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return 2000;
+    return self.imageSource.count;
 }
 
 // 配置section中的collectionViewCell的显示
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     XNGVideoClipViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:cellId forIndexPath:indexPath];
-    cell.contentView.backgroundColor = [UIColor colorWithRed:((float)arc4random_uniform(256) / 255.0) green:((float)arc4random_uniform(256) / 255.0) blue:((float)arc4random_uniform(256) / 255.0) alpha:1.0];
 
-//    cell.imageView = self.imageSource[indexPath.row];
+    cell.imageView.image = self.imageSource[indexPath.row];
 
     return cell;
 }
@@ -123,7 +127,7 @@
 
 //每个cell的大小，因为有indexPath，所以可以判断哪一组，或者哪一个item，可一个给特定的大小，等同于layout的itemSize属性
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    return CGSizeMake(40, 60); // 宽度不确定需要确定30面显示多少张图片，再用屏幕宽度减去20除以图片张数就是图片的宽度
+    return AssetImageSize; // 宽度不确定需要确定30面显示多少张图片，再用屏幕宽度减去20除以图片张数就是图片的宽度
 }
 
 // 设置整个组的缩进量是多少

@@ -11,6 +11,7 @@
 #import "XNGVoiceConfigView.h"
 #import "XNGVideoClipView.h"
 #import "XNGVideoEditTabView.h"
+#import "XNGVideoEditManager.h"
 #import "Masonry.h"
 
 #import <AVKit/AVKit.h>
@@ -46,16 +47,8 @@
     [self navigationBarConfigure];
     [self layoutItemViews];
     [self observerConfigure];
+    [self analysisOfVideoKeyFramePicturesBeginTime:0.0 endTime:30.0];
 }
-
-//-(void)viewWillAppear:(BOOL)animated {
-//    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
-//}
-//
-//-(void)viewWillDisappear:(BOOL)animated {
-//    [super viewWillDisappear:animated];
-//    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
-//}
 
 - (void)dealloc {
     [self.playerItem removeObserver:self forKeyPath:@"status" context:nil];
@@ -165,6 +158,23 @@
         [self.playerView.player setVolume:1];
         [self.audioPlayer setVolume:0];
     }
+}
+
+#pragma mark 获取图片视频帧图片
+
+- (void)analysisOfVideoKeyFramePicturesBeginTime:(CGFloat)begin endTime:(CGFloat)end {
+    
+//    1200/(KScreenWidth-26)s
+    
+    NSMutableArray<UIImage *> * array = [NSMutableArray<UIImage *> array];
+    
+    for (CGFloat i = begin; i < end; i += 1200/(KScreenWidth-26)) {
+        @autoreleasepool {
+            UIImage * image = [[XNGVideoEditManager shareVideoEditManager] getImage:[self getLocalVideoPath] currectTime:i];
+            [array addObject:image];
+        }
+    }
+    [self.videoClipView setModel:array];
 }
 
 #pragma mark Private-Method
