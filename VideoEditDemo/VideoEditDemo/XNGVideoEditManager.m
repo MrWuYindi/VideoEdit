@@ -42,7 +42,7 @@
     AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:videoURL options:nil];
     AVAssetImageGenerator *gen = [[AVAssetImageGenerator alloc] initWithAsset:asset];
     gen.appliesPreferredTrackTransform = YES;
-    gen.maximumSize = AssetImageSize;
+    gen.maximumSize = CGSizeMake((KScreenWidth-26)/10, 60);
     gen.requestedTimeToleranceAfter = kCMTimeZero;
     gen.requestedTimeToleranceBefore = kCMTimeZero;
     CMTime time = CMTimeMakeWithSeconds(second, 600);

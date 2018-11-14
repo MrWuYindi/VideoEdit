@@ -17,7 +17,7 @@
 #import <AVKit/AVKit.h>
 #import <AVFoundation/AVFoundation.h>
 
-@interface XNGVideoEditVC () {
+@interface XNGVideoEditVC ()<XNGVideoClipViewDelegate> {
     NSString *_totalTime;
     NSDateFormatter *_dateFormatter;
     AudioState audioState;  // 向后台传值使用，暂时没有用，只是赋值了
@@ -40,6 +40,13 @@
 @end
 
 @implementation XNGVideoEditVC
+
+#pragma mark ===    XNGVideoClipViewDelegate    ===
+/* 滑动预览图片代理通知到控制器 */
+- (void)videoClipViewDidScroll:(XNGVideoClipView *)videoClipView contentOffsetX:(CGFloat)offsetX {
+    NSLog(@"-videoClipView-offsetX:%f", offsetX);
+    
+}
 
 #pragma mark Lift-Cycle
 - (void)viewDidLoad {
@@ -106,6 +113,9 @@
         make.width.mas_equalTo(KScreenWidth);
         make.height.mas_equalTo(85.f);
     }];
+    
+    self.videoClipView.delegate = self;
+    
     self.voiceConfigView.hidden = NO;
     self.videoClipView.hidden = YES;
     
@@ -168,7 +178,7 @@
     
     NSMutableArray<UIImage *> * array = [NSMutableArray<UIImage *> array];
     
-    for (CGFloat i = begin; i < end; i += 1200/(KScreenWidth-26)) {
+    for (CGFloat i = begin; i < end; i += 3) {
         @autoreleasepool {
             UIImage * image = [[XNGVideoEditManager shareVideoEditManager] getImage:[self getLocalVideoPath] currectTime:i];
             [array addObject:image];

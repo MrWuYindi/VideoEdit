@@ -8,7 +8,20 @@
 
 #import <UIKit/UIKit.h>
 
+@class XNGVideoClipView;
+@protocol XNGVideoClipViewDelegate<NSObject>
+
+@required
+// 刚开始滑动
+
+// 滑动时回调
+- (void)videoClipViewDidScroll:(XNGVideoClipView *)videoClipView contentOffsetX:(CGFloat)offsetX;
+
+@end
+
 @interface XNGVideoClipView : UIView
+
+@property (nonatomic, weak) id<XNGVideoClipViewDelegate> delegate;
 
 - (instancetype)initWithFrame:(CGRect)frame imageSource:(NSArray *)images;
 

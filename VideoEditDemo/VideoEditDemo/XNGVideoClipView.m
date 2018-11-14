@@ -11,7 +11,7 @@
 
 #define cellId   @"XNGVideoClipViewCellId"
 
-@interface XNGVideoClipView ()<UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout> {
+@interface XNGVideoClipView ()<UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UIScrollViewDelegate> {
     NSInteger beginIndex;   // 刚开始构建为0，从0开始播放；当滑动时根据contentOffSet计算beginIndex,单位是秒，代表着滑块在初始位置
 }
 
@@ -127,7 +127,7 @@
 
 //每个cell的大小，因为有indexPath，所以可以判断哪一组，或者哪一个item，可一个给特定的大小，等同于layout的itemSize属性
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    return AssetImageSize; // 宽度不确定需要确定30面显示多少张图片，再用屏幕宽度减去20除以图片张数就是图片的宽度
+    return CGSizeMake((KScreenWidth-26)/10, 60); // 宽度不确定需要确定30面显示多少张图片，再用屏幕宽度减去20除以图片张数就是图片的宽度
 }
 
 // 设置整个组的缩进量是多少
@@ -153,6 +153,41 @@
 //    if (self.clickRecommendProduct) {
 //        self.clickRecommendProduct(indexPath.row);
 //    }
+}
+
+#pragma mark ========= UIScrollViewDelegate =========
+
+// 当开始滚动视图时，执行该方法。一次有效滑动（开始滑动，滑动一小段距离，只要手指不松开，只算一次滑动），只执行一次。
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView{
+    
+    NSLog(@"scrollViewWillBeginDragging");
+    
+}
+
+//scrollView滚动时，就调用该方法。任何offset值改变都调用该方法。即滚动过程中，调用多次
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    if (self.delegate && [self.delegate respondsToSelector:@selector(videoClipViewDidScroll:contentOffsetX:)]) {
+        [self.delegate videoClipViewDidScroll:self contentOffsetX:scrollView.contentOffset.x];
+    }
+}
+
+// 滑动scrollView，并且手指离开时执行。一次有效滑动，只执行一次。
+// 当pagingEnabled属性为YES时，不调用，该方法
+- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset{
+    
+    NSLog(@"scrollViewWillEndDragging");
+    
+}
+
+// 阻止scrollview的惯性滑动、 要在主线程执行，才有效果
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+{
+    if (decelerate)
+    {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [scrollView setContentOffset:scrollView.contentOffset animated:NO];
+        });
+    }
 }
 
 @end
