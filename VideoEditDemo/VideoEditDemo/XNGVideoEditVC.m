@@ -19,15 +19,12 @@
 
 @interface XNGVideoEditVC ()<XNGVideoClipViewDelegate> {
     NSString *_totalTime;
-    NSDateFormatter *_dateFormatter;
     AudioState audioState;  // 向后台传值使用，暂时没有用，只是赋值了
 }
 
 @property (nonatomic ,strong) XNGPlayerView *playerView;
 @property (nonatomic ,strong) AVPlayerItem *playerItem;
 @property (nonatomic ,strong) AVPlayer *player;             //  视频播放器
-@property (nonatomic ,strong) AVPlayerItem *audioPlayerItem;
-@property (nonatomic, strong) AVPlayer *audioPlayer;  //  音频播放器
 
 @property (nonatomic ,strong) id playbackTimeObserver;
 
@@ -37,6 +34,8 @@
 @property (nonatomic, strong) XNGVideoClipView * videoClipView;
 @property (nonatomic, strong) XNGVideoEditTabView * videoEditTabView;
 
+@property (nonatomic, assign) NSTimeInterval startInterval; // 开始播放时间
+
 @end
 
 @implementation XNGVideoEditVC
@@ -45,7 +44,15 @@
 /* 滑动预览图片代理通知到控制器 */
 - (void)videoClipViewDidScroll:(XNGVideoClipView *)videoClipView contentOffsetX:(CGFloat)offsetX {
     NSLog(@"-videoClipView-offsetX:%f", offsetX);
-    
+    [self.videoClipView endTimerAction];
+    CMTime videoPointTime = CMTimeMake(offsetX/(KScreenWidth-26)*30*self.playerItem.currentTime.timescale, self.playerItem.currentTime.timescale);
+    [self.playerItem seekToTime:videoPointTime toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:nil];
+}
+
+- (void)videoClipViewDidEndDragging:(XNGVideoClipView *)videoClipView contentOffsetX:(CGFloat)offsetX {
+    [self.videoClipView beginTimerAction];
+    self.startInterval = offsetX/(KScreenWidth-26)*30*self.playerItem.currentTime.timescale;
+    [self.videoClipView settingBegin:offsetX/(KScreenWidth-26)*30*self.playerItem.currentTime.timescale/1000];
 }
 
 #pragma mark Lift-Cycle
@@ -54,14 +61,13 @@
     [self navigationBarConfigure];
     [self layoutItemViews];
     [self observerConfigure];
-    [self analysisOfVideoKeyFramePicturesBeginTime:0.0 endTime:30.0];
+    [self analysisOfVideoKeyFramePicturesBeginTime:0.0 endTime:64.433375];
 }
 
 - (void)dealloc {
     [self.playerItem removeObserver:self forKeyPath:@"status" context:nil];
     [self.playerItem removeObserver:self forKeyPath:@"loadedTimeRanges" context:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:self.audioPlayerItem];
     [self.playerView.player removeTimeObserver:self.playbackTimeObserver];
 }
 
@@ -89,23 +95,12 @@
         make.center.equalTo(strongSelf.playerView);
     }];
     
-    self.playerView.playerViewClickHandler = ^(PlayerState state) {
-        __weak typeof(self) strongSelf = weakSelf;
-        // 点击播放器的回调
-        [strongSelf playerStateConfig:state];
-    };
-    
     [self.voiceConfigView mas_remakeConstraints:^(MASConstraintMaker *make) {
         __weak typeof(self) strongSelf = weakSelf;
         make.bottom.equalTo(strongSelf.view).with.offset(-49);
         make.width.mas_equalTo(KScreenWidth);
         make.height.mas_equalTo(85.f);
     }];
-    self.voiceConfigView.voiceConfigHandler = ^(AudioState state) {
-        // 点击：背景音乐、混音、视频原生 的回调
-        __weak typeof(self) strongSelf = weakSelf;
-        [strongSelf voiceStateConfig:state];
-    };
     
     [self.videoClipView mas_remakeConstraints:^(MASConstraintMaker *make) {
         __weak typeof(self) strongSelf = weakSelf;
@@ -114,17 +109,33 @@
         make.height.mas_equalTo(85.f);
     }];
     
-    self.videoClipView.delegate = self;
-    
-    self.voiceConfigView.hidden = NO;
-    self.videoClipView.hidden = YES;
-    
     [self.videoEditTabView mas_remakeConstraints:^(MASConstraintMaker *make) {
         __weak typeof(self) strongSelf = weakSelf;
         make.bottom.mas_equalTo(strongSelf.view);
         make.left.right.mas_equalTo(0);
         make.height.mas_equalTo(49);
     }];
+    
+    self.playerView.playerViewClickHandler = ^(PlayerState state) {
+        __weak typeof(self) strongSelf = weakSelf;
+        // 点击播放器的回调
+        [strongSelf playerStateConfig:state];
+    };
+    
+    self.voiceConfigView.voiceConfigHandler = ^(AudioState state) {
+        // 点击：背景音乐、混音、视频原生 的回调
+        __weak typeof(self) strongSelf = weakSelf;
+        [strongSelf voiceStateConfig:state];
+    };
+    
+    [self.videoClipView settingBegin:0.f];
+    self.startInterval = 0.f;
+    
+    self.videoClipView.delegate = self;
+    
+    self.voiceConfigView.hidden = NO;
+    self.videoClipView.hidden = YES;
+    
     self.videoEditTabView.selectHandler = ^(VideoState state) {
         __weak typeof(self) strongSelf = weakSelf;
         if (state == VideoStateVoiceConfig) {
@@ -140,13 +151,13 @@
 - (void)playerStateConfig:(PlayerState)state {
     if (state == PlayerStateAcion) {
         [self.playerView.player play];
-        [self.audioPlayer play];
+        [self.videoClipView beginTimerAction];
         [UIView animateWithDuration:0.5 animations:^{
             self.stateImageView.alpha = 0;
         }];
     } else {
         [self.playerView.player pause];
-        [self.audioPlayer pause];
+        [self.videoClipView endTimerAction];
         [UIView animateWithDuration:0.5 animations:^{
             self.stateImageView.alpha = 1;
         }];
@@ -160,31 +171,40 @@
     // 预览视频播放，不涉及制作，将用户选项记录到本地
     if (state == AudioStateBackground) {    // 背景音乐
         [self.playerView.player setVolume:0];
-        [self.audioPlayer setVolume:1];
     } else if (state == AudioStateSoundMixing) {    // 混音
         [self.playerView.player setVolume:0.7];
-        [self.audioPlayer setVolume:0.3];
     } else {    // 视频原声
         [self.playerView.player setVolume:1];
-        [self.audioPlayer setVolume:0];
     }
 }
 
 #pragma mark 获取图片视频帧图片
-
+// 固定30s十张图片
 - (void)analysisOfVideoKeyFramePicturesBeginTime:(CGFloat)begin endTime:(CGFloat)end {
     
-//    1200/(KScreenWidth-26)s
+    /**
+     dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        // 处理耗时操作的代码块...
+        //通知主线程刷新
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //回调或者说是通知主线程刷新，
+        });
+     });
+     */
     
-    NSMutableArray<UIImage *> * array = [NSMutableArray<UIImage *> array];
-    
-    for (CGFloat i = begin; i < end; i += 3) {
-        @autoreleasepool {
-            UIImage * image = [[XNGVideoEditManager shareVideoEditManager] getImage:[self getLocalVideoPath] currectTime:i];
-            [array addObject:image];
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        NSMutableArray<UIImage *> * array = [NSMutableArray<UIImage *> array];
+        
+        for (CGFloat i = begin; i < end; i += 3) {
+            @autoreleasepool {
+                UIImage * image = [[XNGVideoEditManager shareVideoEditManager] getImage:[self getLocalVideoPath] currectTime:i];
+                [array addObject:image];
+            }
         }
-    }
-    [self.videoClipView setModel:array];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.videoClipView setModel:array];
+        });
+    });
 }
 
 #pragma mark Private-Method
@@ -193,8 +213,6 @@
     [self.playerItem addObserver:self forKeyPath:@"status" options:NSKeyValueObservingOptionNew context:nil]; // 监听status属性
     [self.playerItem addObserver:self forKeyPath:@"loadedTimeRanges" options:NSKeyValueObservingOptionNew context:nil]; // 监听loadedTimeRanges属性
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moviePlayDidEnd:) name:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem];  // 监听播放结束
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioPlayDidEnd:) name:AVPlayerItemDidPlayToEndTimeNotification object:self.audioPlayerItem];  // 监听audio播放结束
 }
 
 #pragma mark >>> KVO方法
@@ -204,8 +222,8 @@
         if ([playerItem status] == AVPlayerStatusReadyToPlay) {
             NSLog(@"AVPlayerStatusReadyToPlay");
             CMTime duration = self.playerItem.duration;// 获取视频总长度
-            CGFloat totalSecond = playerItem.duration.value / playerItem.duration.timescale;// 转换成秒
-            _totalTime = [self convertTime:totalSecond];// 转换成播放时间
+//            CGFloat totalSecond = playerItem.duration.value / playerItem.duration.timescale;// 转换成秒
+//            _totalTime = [self convertTime:totalSecond];// 转换成播放时间
 //            [self customVideoSlider:duration];// 自定义UISlider外观
             NSLog(@"movie total duration:%f",CMTimeGetSeconds(duration));
             [self monitoringPlayback:self.playerItem];// 监听播放状态
@@ -215,8 +233,8 @@
     } else if ([keyPath isEqualToString:@"loadedTimeRanges"]) {
         NSTimeInterval timeInterval = [self availableDuration];// 计算缓冲进度
         NSLog(@"Time Interval:%f",timeInterval);
-        CMTime duration = _playerItem.duration;
-        CGFloat totalDuration = CMTimeGetSeconds(duration);
+//        CMTime duration = _playerItem.duration;
+//        CGFloat totalDuration = CMTimeGetSeconds(duration);
 //        [self.videoProgress setProgress:timeInterval / totalDuration animated:YES];
     }
 }
@@ -237,58 +255,31 @@
     __weak typeof(self) weakSelf = self;
     self.playbackTimeObserver = [self.playerView.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 1) queue:NULL usingBlock:^(CMTime time) {
         CGFloat currentSecond = playerItem.currentTime.value/playerItem.currentTime.timescale;// 计算当前在第几秒
-//        [weakSelf.videoSlider setValue:currentSecond animated:YES];
-        NSString *timeString = [weakSelf convertTime:currentSecond];
-//        weakSelf.timeLabel.text = [NSString stringWithFormat:@"%@/%@",timeString,_totalTime];
-        NSLog(@"%@", [NSString stringWithFormat:@"监听播放状态：%@/%@",timeString,self->_totalTime]);
+        NSLog(@"%@", [NSString stringWithFormat:@"监听播放状态：%f",currentSecond]);
+        if (currentSecond >= weakSelf.startInterval+30.f) {
+            CMTime videoPointTime = CMTimeMake(weakSelf.startInterval, weakSelf.playerItem.currentTime.timescale);
+            [weakSelf.playerItem seekToTime:videoPointTime toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:nil];
+        }
     }];
 }
 
 #pragma mark >>> 视频播放结束回调
 - (void)moviePlayDidEnd:(NSNotification *)notification {
     NSLog(@"Play end");
-    [self.audioPlayer pause];
     __weak typeof(self) weakSelf = self;
     [self.playerView.player seekToTime:kCMTimeZero completionHandler:^(BOOL finished) { // 跳转到相应的播放位置
         [UIView animateWithDuration:0.5 animations:^{
             weakSelf.stateImageView.alpha = 1;
         }];
     }];
-    [self.audioPlayer seekToTime:kCMTimeZero];
-}
-
-/**
- 能到达这个文件说明音频比视频可播放时长短，采取的措施是音频重头开始播放
- */
-- (void)audioPlayDidEnd:(NSNotification *)notification {
-    NSLog(@"Play end");
-    [self.audioPlayer pause];
-    [self.audioPlayer seekToTime:kCMTimeZero];
-    [self.audioPlayer play];
-}
-
-#pragma mark >>> 时间戳转换
-- (NSString *)convertTime:(CGFloat)second{
-    NSDate *d = [NSDate dateWithTimeIntervalSince1970:second];
-    if (second/3600 >= 1) {
-        [[self dateFormatter] setDateFormat:@"HH:mm:ss"];
-    } else {
-        [[self dateFormatter] setDateFormat:@"mm:ss"];
-    }
-    NSString *showtimeNew = [[self dateFormatter] stringFromDate:d];
-    return showtimeNew;
+    [self.videoClipView endTimerAction];
+    [self.videoClipView sliderInitialStatus];
 }
 
 #pragma mark >>> 获取本地的视频文件URL
 // 视频原生
 - (NSURL *)getLocalVideoPath {
     NSString * path = [[NSBundle mainBundle] pathForResource:@"test" ofType:@"mp4"];
-    return [NSURL fileURLWithPath:path];
-}
-
-#pragma mark >>> 获取本地的音频文件URL
-- (NSURL *)getLocalVoicePath {
-    NSString * path = [[NSBundle mainBundle] pathForResource:@"test" ofType:@"mp3"];
     return [NSURL fileURLWithPath:path];
 }
 
@@ -352,20 +343,6 @@
     return _player;
 }
 
-- (AVPlayerItem *)audioPlayerItem {
-    if (!_audioPlayerItem) {
-        _audioPlayerItem = [AVPlayerItem playerItemWithURL:[self getLocalVoicePath]];
-    }
-    return _audioPlayerItem;
-}
-
-- (AVPlayer *)audioPlayer {
-    if (!_audioPlayer) {
-        _audioPlayer = [[AVPlayer alloc]initWithPlayerItem:self.audioPlayerItem];
-    }
-    return _audioPlayer;
-}
-
 - (UIImageView *)stateImageView {
     if (!_stateImageView) {
         _stateImageView = [[UIImageView alloc] init];
@@ -393,13 +370,6 @@
         _videoEditTabView = [[XNGVideoEditTabView alloc] initWithFrame:CGRectMake(0, 0, KScreenWidth, 49)];
     }
     return _videoEditTabView;
-}
-
-- (NSDateFormatter *)dateFormatter {
-    if (!_dateFormatter) {
-        _dateFormatter = [[NSDateFormatter alloc] init];
-    }
-    return _dateFormatter;
 }
 
 - (void)didReceiveMemoryWarning {

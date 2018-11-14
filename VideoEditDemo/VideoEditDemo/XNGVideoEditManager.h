@@ -25,16 +25,9 @@
 + (id)shareVideoEditManager;
 
 #pragma mark === 视频预览过程 ===
-
-
-
 /*
  给定视频URL，解析出相应时间的视频帧
  */
 -(UIImage *)getImage:(NSURL *)videoURL currectTime:(CGFloat)second;
-
-#pragma mark === 点击完成视频制作过程 ===
-
-- (NSURL *)removeOriginalSoundFrom:(NSURL *)originalAudioVideo;
 
 @end

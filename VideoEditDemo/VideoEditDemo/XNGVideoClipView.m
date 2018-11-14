@@ -11,9 +11,7 @@
 
 #define cellId   @"XNGVideoClipViewCellId"
 
-@interface XNGVideoClipView ()<UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UIScrollViewDelegate> {
-    NSInteger beginIndex;   // 刚开始构建为0，从0开始播放；当滑动时根据contentOffSet计算beginIndex,单位是秒，代表着滑块在初始位置
-}
+@interface XNGVideoClipView ()<UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UIScrollViewDelegate>
 
 // 边框布局控件
 @property (weak, nonatomic) IBOutlet UIView *topLineView;
@@ -26,8 +24,8 @@
 // collectionView 相关
 @property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
 @property (nonatomic, strong) NSMutableArray<UIImage *> * imageSource;
-// 进度滑块定时器
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *sliderLeftConstraint;
+
+@property (nonatomic, strong) NSTimer * timer;
 
 @end
 
@@ -40,19 +38,64 @@
         self = [[NSBundle mainBundle] loadNibNamed:NSStringFromClass([self class]) owner:self options:nil][0];
         self.frame = frame;
         self.imageSource = [NSMutableArray<UIImage *> array];
-        beginIndex = 0;
+        [self sliderInitialStatus];
         [self collectionViewConfig];
         [self layoutLineView];
-//        self.sliderLeftConstraint.constant = 50.f;
     }
     return self;
 }
 
 #pragma mark Private-Method
 
+- (void)beginTimerAction {
+    self.timer = [NSTimer timerWithTimeInterval:1.0 target:self selector:@selector(settingSliderPosition:) userInfo:nil repeats:YES];
+    [[NSRunLoop currentRunLoop] addTimer:_timer forMode:NSRunLoopCommonModes];
+    [self.timer fire];
+}
+
+- (void)endTimerAction {
+    [self.timer invalidate];
+    self.timer = nil;
+}
+
+- (void)settingSliderPosition:(NSTimer *)timer {
+    CGFloat increment = (KScreenWidth-26)/30;
+    self.sliderLeftConstraint.constant += increment;
+    if (self.sliderLeftConstraint.constant >= (KScreenWidth-26)) {
+        [self sliderInitialStatus];
+    }
+}
+
+- (void)sliderInitialStatus {
+    self.sliderLeftConstraint.constant = 0;
+}
+
 - (void)setModel:(NSMutableArray<UIImage *> *)imageSources {
     self.imageSource = imageSources;
     [self.collectionView reloadData];
+}
+
+- (void)settingBegin:(NSTimeInterval)begin {
+
+    if (begin <= 0) {
+        begin = 0;
+    }
+    
+    self.startTimeLabel.text = [self convertTime:begin];
+    self.endTimeLabel.text = [self convertTime:begin+30.f];
+}
+
+#pragma mark >>> 时间戳转换
+- (NSString *)convertTime:(CGFloat)second{
+    NSDate *d = [NSDate dateWithTimeIntervalSince1970:second];
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    if (second/3600 >= 1) {
+        [formatter setDateFormat:@"HH:mm:ss"];
+    } else {
+        [formatter setDateFormat:@"mm:ss"];
+    }
+    NSString *showtimeNew = [formatter stringFromDate:d];
+    return showtimeNew;
 }
 
 /**
@@ -150,9 +193,7 @@
 // 选中操作
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     [collectionView deselectItemAtIndexPath:indexPath animated:YES];
-//    if (self.clickRecommendProduct) {
-//        self.clickRecommendProduct(indexPath.row);
-//    }
+
 }
 
 #pragma mark ========= UIScrollViewDelegate =========
@@ -161,7 +202,7 @@
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView{
     
     NSLog(@"scrollViewWillBeginDragging");
-    
+    [self sliderInitialStatus];
 }
 
 //scrollView滚动时，就调用该方法。任何offset值改变都调用该方法。即滚动过程中，调用多次
@@ -182,11 +223,8 @@
 // 阻止scrollview的惯性滑动、 要在主线程执行，才有效果
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-    if (decelerate)
-    {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [scrollView setContentOffset:scrollView.contentOffset animated:NO];
-        });
+    if (self.delegate && [self.delegate respondsToSelector:@selector(videoClipViewDidEndDragging:contentOffsetX:)]) {
+        [self.delegate videoClipViewDidEndDragging:self contentOffsetX:scrollView.contentOffset.x];
     }
 }
 
