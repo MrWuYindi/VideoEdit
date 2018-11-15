@@ -9,7 +9,6 @@
 #import "XNGVideoEditVC.h"
 #import "XNGPlayerView.h"
 #import "XNGVoiceConfigView.h"
-#import "XNGVideoClipView.h"
 #import "XNGVideoEditTabView.h"
 #import "XNGVideoEditManager.h"
 #import "Masonry.h"
@@ -17,7 +16,8 @@
 #import <AVKit/AVKit.h>
 #import <AVFoundation/AVFoundation.h>
 
-@interface XNGVideoEditVC ()<XNGVideoClipViewDelegate> {
+@interface XNGVideoEditVC ()
+{
     AudioState audioState;  // 向后台传值使用，暂时没有用，只是赋值了
 }
 
@@ -31,7 +31,6 @@
 @property (nonatomic, strong) UIImageView *stateImageView;  // 状态播放按钮
 
 @property (nonatomic, strong) XNGVoiceConfigView *voiceConfigView;
-@property (nonatomic, strong) XNGVideoClipView * videoClipView;
 @property (nonatomic, strong) XNGVideoEditTabView * videoEditTabView;
 
 @property (nonatomic, assign) NSTimeInterval startInterval; // 开始播放时间
@@ -135,7 +134,6 @@
     [self.view addSubview:self.playerView];
     [self.playerView addSubview:self.stateImageView];
     [self.view addSubview:self.voiceConfigView];
-    [self.view addSubview:self.videoClipView];
     [self.view addSubview:self.videoEditTabView];
     
     UIEdgeInsets padding = UIEdgeInsetsMake(StatusBarH + NavigationBarH + 5, 10, TabbarH + 85.f, 10);
@@ -153,13 +151,6 @@
     }];
     
     [self.voiceConfigView mas_remakeConstraints:^(MASConstraintMaker *make) {
-        __weak typeof(self) strongSelf = weakSelf;
-        make.bottom.equalTo(strongSelf.view).with.offset(-49);
-        make.width.mas_equalTo(KScreenWidth);
-        make.height.mas_equalTo(85.f);
-    }];
-    
-    [self.videoClipView mas_remakeConstraints:^(MASConstraintMaker *make) {
         __weak typeof(self) strongSelf = weakSelf;
         make.bottom.equalTo(strongSelf.view).with.offset(-49);
         make.width.mas_equalTo(KScreenWidth);
@@ -185,23 +176,17 @@
         [strongSelf voiceStateConfig:state];
     };
     
-    [self.videoClipView settingBegin:0.f];
     self.startInterval = 0.f;   // self.beginMusicTime/1000;
     self.startToEndDuration = 30.f; // self.endMusicTime/1000 - self.startInterval
     
-    self.videoClipView.delegate = self;
-    
     self.voiceConfigView.hidden = NO;
-    self.videoClipView.hidden = YES;
     
     self.videoEditTabView.selectHandler = ^(VideoState state) {
         __weak typeof(self) strongSelf = weakSelf;
         if (state == VideoStateVoiceConfig) {
             strongSelf.voiceConfigView.hidden = NO;
-            strongSelf.videoClipView.hidden = YES;
         } else {
             strongSelf.voiceConfigView.hidden = YES;
-            strongSelf.videoClipView.hidden = NO;
         }
     };
 }
@@ -250,33 +235,9 @@
             }
         }
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self.videoClipView setModel:array];
+
         });
     });
-}
-
-#pragma mark ===    XNGVideoClipViewDelegate    ===
-/* 滑动预览图片代理通知到控制器 */
-- (void)videoClipViewDidScroll:(XNGVideoClipView *)videoClipView contentOffsetX:(CGFloat)offsetX {
-    NSLog(@"-videoClipView-offsetX:%f", offsetX);
-    /**
-     CMTime CMTimeMake (
-        int64_t value,    //表示 当前视频播放到的第几桢数
-        int32_t timescale //每秒的帧数
-     );
-     
-     CMTime CMTimeMakeWithSeconds(
-        Float64 seconds,
-        int32_t preferredTimescale
-     );
-     */
-    CMTime videoPointTime = CMTimeMake(offsetX/(KScreenWidth-26)*30*self.playerItem.currentTime.timescale, self.playerItem.currentTime.timescale);
-    [self.playerItem seekToTime:videoPointTime toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:nil];
-}
-
-- (void)videoClipViewDidEndDragging:(XNGVideoClipView *)videoClipView contentOffsetX:(CGFloat)offsetX {
-    self.startInterval = offsetX/(KScreenWidth-26)*30;
-    [self.videoClipView settingBegin:self.startInterval];
 }
 
 #pragma mark Private-Method
@@ -323,7 +284,6 @@
     self.playbackTimeObserver = [self.playerView.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 1) queue:NULL usingBlock:^(CMTime time) {
         CGFloat currentSecond = playerItem.currentTime.value/playerItem.currentTime.timescale;// 计算当前在第几秒
         NSLog(@"%@", [NSString stringWithFormat:@"监听播放状态：%f",currentSecond]);
-        [weakSelf.videoClipView setSliderPosition:currentSecond - self.startInterval];   // 减去起始时间
         if (currentSecond > weakSelf.startInterval+weakSelf.startToEndDuration) {
             CMTime videoPointTime = CMTimeMake(weakSelf.startInterval, weakSelf.playerItem.currentTime.timescale);
             [weakSelf.playerItem seekToTime:videoPointTime toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:nil];
@@ -413,13 +373,6 @@
         _voiceConfigView = [[XNGVoiceConfigView alloc] initXNGViewWithFrame:CGRectMake(0, 0, KScreenWidth, 105.f)];
     }
     return _voiceConfigView;
-}
-
-- (XNGVideoClipView *)videoClipView {
-    if (!_videoClipView) {
-        _videoClipView= [[XNGVideoClipView alloc] initWithFrame:CGRectMake(0, 0, KScreenWidth, 105.f) imageSource:@[]];
-    }
-    return _videoClipView;
 }
 
 - (XNGVideoEditTabView *)videoEditTabView {
