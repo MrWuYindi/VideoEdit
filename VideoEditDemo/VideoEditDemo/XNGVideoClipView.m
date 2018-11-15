@@ -46,12 +46,12 @@
 #pragma mark Private-Method
 
 - (void)setSliderPosition:(NSTimeInterval)time {
-    self.sliderLeftConstraint.constant = time/30*(KScreenWidth-27.5);
+    self.sliderLeftConstraint.constant = time/30*(KScreenWidth-26);
 }
 
 - (void)settingSliderPosition:(NSTimer *)timer {
-    CGFloat increment = (KScreenWidth-27.5)/30;
-    if (self.sliderLeftConstraint.constant >= (KScreenWidth-27.5)) {    // 如果视频播放时间小于30s 那么就不是(KScreenWidth-27.5)，这是一个bug
+    CGFloat increment = (KScreenWidth-26)/30;
+    if (self.sliderLeftConstraint.constant >= (KScreenWidth-26)) {    // 如果视频播放时间小于30s 那么就不是(KScreenWidth-26)，这是一个bug
         [self sliderInitialStatus];
     }
     self.sliderLeftConstraint.constant += increment;
@@ -96,6 +96,7 @@
     self.collectionView.dataSource = self;
     self.collectionView.delegate = self;
     self.collectionView.showsHorizontalScrollIndicator = NO;
+    self.collectionView.bounces = NO;
     // 注册cell
     [_collectionView registerClass:[XNGVideoClipViewCell class] forCellWithReuseIdentifier:cellId];
 }

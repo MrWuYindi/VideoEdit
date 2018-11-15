@@ -33,16 +33,18 @@
  那么需要取出(KScreenWidth-26)/40向上取整张图片，也就是ceil((KScreenWidth-26)/40)
  取(KScreenWidth-26)/40张图片则需要每隔30s/((KScreenWidth-26)/40)s取一张图片，1200/(KScreenWidth-26)s
  
+ CMTimeMake(a,b)    a当前第几帧, b每秒钟多少帧.当前播放时间a/b
  CMTimeMakeWithSeconds(a,b) a当前时间,b每秒钟多少帧.
  
  */
 -(UIImage *)getAsset:(AVURLAsset *)asset currectTime:(CGFloat)second {
     AVAssetImageGenerator *gen = [[AVAssetImageGenerator alloc] initWithAsset:asset];
+    AVPlayerItem *item = [[AVPlayerItem alloc]initWithAsset:asset];
     gen.appliesPreferredTrackTransform = YES;
     gen.maximumSize = CGSizeMake((KScreenWidth-26)/10, 60);
     gen.requestedTimeToleranceAfter = kCMTimeZero;
     gen.requestedTimeToleranceBefore = kCMTimeZero;
-    CMTime time = CMTimeMakeWithSeconds(second, 600);
+    CMTime time = CMTimeMakeWithSeconds(second, item.currentTime.timescale);
     NSError *error = nil;
     CMTime actualTime;
     CGImageRef image = [gen copyCGImageAtTime:time actualTime:&actualTime error:&error];

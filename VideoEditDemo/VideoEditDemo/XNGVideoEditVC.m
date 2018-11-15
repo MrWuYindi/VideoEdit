@@ -18,7 +18,6 @@
 #import <AVFoundation/AVFoundation.h>
 
 @interface XNGVideoEditVC ()<XNGVideoClipViewDelegate> {
-    NSTimeInterval _totalTime;  // 视频总播放时间
     AudioState audioState;  // 向后台传值使用，暂时没有用，只是赋值了
 }
 
@@ -36,6 +35,8 @@
 @property (nonatomic, strong) XNGVideoEditTabView * videoEditTabView;
 
 @property (nonatomic, assign) NSTimeInterval startInterval; // 开始播放时间
+@property (nonatomic, assign) NSTimeInterval totalTime; // 视频总播放时间
+@property (nonatomic, assign) NSTimeInterval startToEndDuration; // 截取后BMT与EMT的差值
 
 @end
 
@@ -77,17 +78,17 @@
             {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     if (!CMTIME_IS_INDEFINITE(self.playerAsset.duration)) {
-                        //                        CGFloat second = self.playerAsset.duration.value / self.playerAsset.duration.timescale;
-                        //                        self.controlView.totalTime = [self convertTime:second];
-                        //                        self.controlView.minValue = 0;
-                        //                        self.controlView.maxValue = second;
+//                        CGFloat second = self.playerAsset.duration.value / self.playerAsset.duration.timescale;
+//                        self.controlView.totalTime = [self convertTime:second];
+//                        self.controlView.minValue = 0;
+//                        self.controlView.maxValue = second;
                     }
                 });
             }
                 break;
             case AVKeyValueStatusFailed:
             {
-                NSLog(@"AVKeyValueStatusFailed失败,请检查网络,或查看plist中是否添加App Transport Security Settings");
+//                NSLog(@"AVKeyValueStatusFailed失败,请检查网络,或查看plist中是否添加App Transport Security Settings");
             }
                 break;
             case AVKeyValueStatusCancelled:
@@ -185,7 +186,8 @@
     };
     
     [self.videoClipView settingBegin:0.f];
-    self.startInterval = 0.f;
+    self.startInterval = 0.f;   // self.beginMusicTime/1000;
+    self.startToEndDuration = 30.f; // self.endMusicTime/1000 - self.startInterval
     
     self.videoClipView.delegate = self;
     
@@ -242,7 +244,9 @@
         for (CGFloat i = begin; i <= end; i += 3) {
             @autoreleasepool {
                 UIImage * image = [[XNGVideoEditManager shareVideoEditManager] getAsset:self.playerAsset currectTime:i];
-                [array addObject:image];
+                if (image) {
+                    [array addObject:image];
+                }
             }
         }
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -255,6 +259,17 @@
 /* 滑动预览图片代理通知到控制器 */
 - (void)videoClipViewDidScroll:(XNGVideoClipView *)videoClipView contentOffsetX:(CGFloat)offsetX {
     NSLog(@"-videoClipView-offsetX:%f", offsetX);
+    /**
+     CMTime CMTimeMake (
+        int64_t value,    //表示 当前视频播放到的第几桢数
+        int32_t timescale //每秒的帧数
+     );
+     
+     CMTime CMTimeMakeWithSeconds(
+        Float64 seconds,
+        int32_t preferredTimescale
+     );
+     */
     CMTime videoPointTime = CMTimeMake(offsetX/(KScreenWidth-26)*30*self.playerItem.currentTime.timescale, self.playerItem.currentTime.timescale);
     [self.playerItem seekToTime:videoPointTime toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:nil];
 }
@@ -273,10 +288,10 @@
         if ([playerItem status] == AVPlayerStatusReadyToPlay) {
             NSLog(@"AVPlayerStatusReadyToPlay");
             CMTime duration = self.playerItem.duration;// 获取视频总长度
-            //            CGFloat totalSecond = playerItem.duration.value / playerItem.duration.timescale;// 转换成秒
-            //            [self customVideoSlider:duration];// 自定义UISlider外观
+//            CGFloat totalSecond = playerItem.duration.value / playerItem.duration.timescale;// 转换成秒
+//            [self customVideoSlider:duration];// 自定义UISlider外观
             NSLog(@"movie total duration:%f",CMTimeGetSeconds(duration));
-            _totalTime = CMTimeGetSeconds(duration); // 转换成播放时间
+            self.totalTime = CMTimeGetSeconds(duration); // 转换成播放时间
             [self monitoringPlayback:self.playerItem];// 监听播放状态
         } else if ([playerItem status] == AVPlayerStatusFailed) {
             NSLog(@"AVPlayerStatusFailed");
@@ -285,9 +300,9 @@
         NSTimeInterval timeInterval = [self availableDuration];// 计算缓冲进度
         NSLog(@"Time Interval:%f",timeInterval);
         [self analysisOfVideoKeyFramePicturesBeginTime:0.0 endTime:timeInterval];
-        //        CMTime duration = _playerItem.duration;
-        //        CGFloat totalDuration = CMTimeGetSeconds(duration);
-        //        [self.videoProgress setProgress:timeInterval / totalDuration animated:YES];
+//        CMTime duration = _playerItem.duration;
+//        CGFloat totalDuration = CMTimeGetSeconds(duration);
+//        [self.videoProgress setProgress:timeInterval / totalDuration animated:YES];
     }
 }
 
@@ -308,8 +323,8 @@
     self.playbackTimeObserver = [self.playerView.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 1) queue:NULL usingBlock:^(CMTime time) {
         CGFloat currentSecond = playerItem.currentTime.value/playerItem.currentTime.timescale;// 计算当前在第几秒
         NSLog(@"%@", [NSString stringWithFormat:@"监听播放状态：%f",currentSecond]);
-        [weakSelf.videoClipView setSliderPosition:currentSecond];
-        if (currentSecond >= weakSelf.startInterval+30.f) {
+        [weakSelf.videoClipView setSliderPosition:currentSecond - self.startInterval];   // 减去起始时间
+        if (currentSecond > weakSelf.startInterval+weakSelf.startToEndDuration) {
             CMTime videoPointTime = CMTimeMake(weakSelf.startInterval, weakSelf.playerItem.currentTime.timescale);
             [weakSelf.playerItem seekToTime:videoPointTime toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:nil];
         }
@@ -334,7 +349,8 @@
 }
 
 - (NSURL *)getNetVideoUrl {
-    NSURL * url = [NSURL URLWithString:@"http://cdn-xalbum2.xiaoniangao.cn/1621069829?OSSAccessKeyId=E0RxDv7MIOlE5f1V&Expires=1543593605&Signature=RNzOJeZe8hptD136dHnSPJ71bb4%3D"];
+//    NSURL * url = [NSURL URLWithString:@"http://cdn-xalbum2.xiaoniangao.cn/1621069829?OSSAccessKeyId=E0RxDv7MIOlE5f1V&Expires=1543593605&Signature=RNzOJeZe8hptD136dHnSPJ71bb4%3D"];
+    NSURL * url = [NSURL URLWithString:@"https://cdn-xalbum2.xiaoniangao.cn/1602467354?OSSAccessKeyId=E0RxDv7MIOlE5f1V&Expires=1543593605&Signature=vmI06Icw%2Fnr5RXtjtdNgab6ah5o%3D"];
     return url;
 }
 
@@ -382,20 +398,6 @@
         _playerView.player = self.player;
     }
     return _playerView;
-}
-
-//- (AVPlayerItem *)playerItem {
-//    if (!_playerItem) {
-//        _playerItem = [AVPlayerItem playerItemWithURL:[self getLocalVideoPath]];
-//    }
-//    return _playerItem;
-//}
-
-- (AVPlayer *)player {
-    if (!_player) {
-        _player = [AVPlayer playerWithPlayerItem:self.playerItem];
-    }
-    return _player;
 }
 
 - (UIImageView *)stateImageView {
