@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <AVFoundation/AVFoundation.h>
 
 /**
  *  这是图片视频编辑管理类：预览视频和最后的制作视频
@@ -28,6 +29,6 @@
 /*
  给定视频URL，解析出相应时间的视频帧
  */
--(UIImage *)getImage:(NSURL *)videoURL currectTime:(CGFloat)second;
+-(UIImage *)getAsset:(AVURLAsset *)asset currectTime:(CGFloat)second;
 
 @end

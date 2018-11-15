@@ -31,25 +31,12 @@
 
 /**
  设置模型变量
-
+ 
  @param imageSources 外界传递的模型
  */
 - (void)setModel:(NSMutableArray<UIImage *> *)imageSources;
 
-/**
- 开启定时器，播放器开始播放:控制滑块的位置
- */
-- (void)beginTimerAction;
-
-/**
- 停止定时器，播放器停止播放
- */
-- (void)endTimerAction;
-
-/**
- 滑块还原初始状态
- */
-- (void)sliderInitialStatus;
+- (void)setSliderPosition:(NSTimeInterval)time;
 
 /**
  设置时间显示控件

@@ -7,7 +7,6 @@
 //
 
 #import "XNGVideoEditManager.h"
-#import <AVFoundation/AVFoundation.h>
 
 @interface XNGVideoEditManager ()
 
@@ -29,17 +28,15 @@
  generator.maximumSize = CGSizeMake(KHVideoCoverImageSizeWidth*2, KHVideoCoverImageSizeHeight*2);
  
  30s 需要取出多少张图片呢？
-    collectionview的30s宽度是KScreenWidth-20-6,
-    一张图片的宽度是40，
-    那么需要取出(KScreenWidth-26)/40向上取整张图片，也就是ceil((KScreenWidth-26)/40)
-    取(KScreenWidth-26)/40张图片则需要每隔30s/((KScreenWidth-26)/40)s取一张图片，1200/(KScreenWidth-26)s
+ collectionview的30s宽度是KScreenWidth-20-6,
+ 一张图片的宽度是40，
+ 那么需要取出(KScreenWidth-26)/40向上取整张图片，也就是ceil((KScreenWidth-26)/40)
+ 取(KScreenWidth-26)/40张图片则需要每隔30s/((KScreenWidth-26)/40)s取一张图片，1200/(KScreenWidth-26)s
  
  CMTimeMakeWithSeconds(a,b) a当前时间,b每秒钟多少帧.
  
  */
--(UIImage *)getImage:(NSURL *)videoURL currectTime:(CGFloat)second {
-    
-    AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:videoURL options:nil];
+-(UIImage *)getAsset:(AVURLAsset *)asset currectTime:(CGFloat)second {
     AVAssetImageGenerator *gen = [[AVAssetImageGenerator alloc] initWithAsset:asset];
     gen.appliesPreferredTrackTransform = YES;
     gen.maximumSize = CGSizeMake((KScreenWidth-26)/10, 60);

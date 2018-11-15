@@ -18,12 +18,13 @@
 #import <AVFoundation/AVFoundation.h>
 
 @interface XNGVideoEditVC ()<XNGVideoClipViewDelegate> {
-    NSString *_totalTime;
+    NSTimeInterval _totalTime;  // 视频总播放时间
     AudioState audioState;  // 向后台传值使用，暂时没有用，只是赋值了
 }
 
 @property (nonatomic ,strong) XNGPlayerView *playerView;
 @property (nonatomic ,strong) AVPlayerItem *playerItem;
+@property (nonatomic, strong) AVURLAsset * playerAsset;
 @property (nonatomic ,strong) AVPlayer *player;             //  视频播放器
 
 @property (nonatomic ,strong) id playbackTimeObserver;
@@ -40,28 +41,13 @@
 
 @implementation XNGVideoEditVC
 
-#pragma mark ===    XNGVideoClipViewDelegate    ===
-/* 滑动预览图片代理通知到控制器 */
-- (void)videoClipViewDidScroll:(XNGVideoClipView *)videoClipView contentOffsetX:(CGFloat)offsetX {
-    NSLog(@"-videoClipView-offsetX:%f", offsetX);
-    [self.videoClipView endTimerAction];
-    CMTime videoPointTime = CMTimeMake(offsetX/(KScreenWidth-26)*30*self.playerItem.currentTime.timescale, self.playerItem.currentTime.timescale);
-    [self.playerItem seekToTime:videoPointTime toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:nil];
-}
-
-- (void)videoClipViewDidEndDragging:(XNGVideoClipView *)videoClipView contentOffsetX:(CGFloat)offsetX {
-    [self.videoClipView beginTimerAction];
-    self.startInterval = offsetX/(KScreenWidth-26)*30*self.playerItem.currentTime.timescale;
-    [self.videoClipView settingBegin:offsetX/(KScreenWidth-26)*30*self.playerItem.currentTime.timescale/1000];
-}
-
 #pragma mark Lift-Cycle
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [self baseConfig];
     [self navigationBarConfigure];
     [self layoutItemViews];
-    [self observerConfigure];
-    [self analysisOfVideoKeyFramePicturesBeginTime:0.0 endTime:64.433375];
+    [self getAssetWithURL:[self getNetVideoUrl]];
 }
 
 - (void)dealloc {
@@ -69,6 +55,76 @@
     [self.playerItem removeObserver:self forKeyPath:@"loadedTimeRanges" context:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem];
     [self.playerView.player removeTimeObserver:self.playbackTimeObserver];
+}
+
+/**
+ 基础控制
+ */
+- (void)baseConfig {
+    
+}
+
+- (void)getAssetWithURL:(NSURL *)url {
+    NSDictionary *options = @{ AVURLAssetPreferPreciseDurationAndTimingKey : @YES };
+    self.playerAsset = [[AVURLAsset alloc]initWithURL:url options:options];
+    NSArray *keys = @[@"duration"];
+    
+    [self.playerAsset loadValuesAsynchronouslyForKeys:keys completionHandler:^{
+        NSError *error = nil;
+        AVKeyValueStatus tracksStatus = [self.playerAsset statusOfValueForKey:@"duration" error:&error];
+        switch (tracksStatus) {
+            case AVKeyValueStatusLoaded:
+            {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (!CMTIME_IS_INDEFINITE(self.playerAsset.duration)) {
+                        //                        CGFloat second = self.playerAsset.duration.value / self.playerAsset.duration.timescale;
+                        //                        self.controlView.totalTime = [self convertTime:second];
+                        //                        self.controlView.minValue = 0;
+                        //                        self.controlView.maxValue = second;
+                    }
+                });
+            }
+                break;
+            case AVKeyValueStatusFailed:
+            {
+                NSLog(@"AVKeyValueStatusFailed失败,请检查网络,或查看plist中是否添加App Transport Security Settings");
+            }
+                break;
+            case AVKeyValueStatusCancelled:
+            {
+                NSLog(@"AVKeyValueStatusCancelled取消");
+            }
+                break;
+            case AVKeyValueStatusUnknown:
+            {
+                NSLog(@"AVKeyValueStatusUnknown未知");
+            }
+                break;
+            case AVKeyValueStatusLoading:
+            {
+                NSLog(@"AVKeyValueStatusLoading正在加载");
+            }
+                break;
+        }
+    }];
+    [self setupPlayerWithAsset:self.playerAsset];
+    
+}
+
+-(void)setupPlayerWithAsset:(AVURLAsset *)asset{
+    self.playerItem = [[AVPlayerItem alloc]initWithAsset:asset];
+    self.player = [[AVPlayer alloc]initWithPlayerItem:self.playerItem];
+    self.playerView.player = self.player;
+    [self.playerView.player setVolume:0];
+    //添加KVO
+    [self observerConfigure];
+}
+
+#pragma mark 本地监听配置:KVO/Notification
+- (void)observerConfigure {
+    [self.playerItem addObserver:self forKeyPath:@"status" options:NSKeyValueObservingOptionNew context:nil]; // 监听status属性
+    [self.playerItem addObserver:self forKeyPath:@"loadedTimeRanges" options:NSKeyValueObservingOptionNew context:nil]; // 监听loadedTimeRanges属性
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moviePlayDidEnd:) name:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem];  // 监听播放结束
 }
 
 #pragma mark LayoutSubviews
@@ -151,13 +207,11 @@
 - (void)playerStateConfig:(PlayerState)state {
     if (state == PlayerStateAcion) {
         [self.playerView.player play];
-        [self.videoClipView beginTimerAction];
         [UIView animateWithDuration:0.5 animations:^{
             self.stateImageView.alpha = 0;
         }];
     } else {
         [self.playerView.player pause];
-        [self.videoClipView endTimerAction];
         [UIView animateWithDuration:0.5 animations:^{
             self.stateImageView.alpha = 1;
         }];
@@ -182,22 +236,12 @@
 // 固定30s十张图片
 - (void)analysisOfVideoKeyFramePicturesBeginTime:(CGFloat)begin endTime:(CGFloat)end {
     
-    /**
-     dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        // 处理耗时操作的代码块...
-        //通知主线程刷新
-        dispatch_async(dispatch_get_main_queue(), ^{
-            //回调或者说是通知主线程刷新，
-        });
-     });
-     */
-    
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         NSMutableArray<UIImage *> * array = [NSMutableArray<UIImage *> array];
         
-        for (CGFloat i = begin; i < end; i += 3) {
+        for (CGFloat i = begin; i <= end; i += 3) {
             @autoreleasepool {
-                UIImage * image = [[XNGVideoEditManager shareVideoEditManager] getImage:[self getLocalVideoPath] currectTime:i];
+                UIImage * image = [[XNGVideoEditManager shareVideoEditManager] getAsset:self.playerAsset currectTime:i];
                 [array addObject:image];
             }
         }
@@ -207,13 +251,20 @@
     });
 }
 
-#pragma mark Private-Method
-#pragma mark >>> 本地监听配置:KVO/Notification
-- (void)observerConfigure {
-    [self.playerItem addObserver:self forKeyPath:@"status" options:NSKeyValueObservingOptionNew context:nil]; // 监听status属性
-    [self.playerItem addObserver:self forKeyPath:@"loadedTimeRanges" options:NSKeyValueObservingOptionNew context:nil]; // 监听loadedTimeRanges属性
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moviePlayDidEnd:) name:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem];  // 监听播放结束
+#pragma mark ===    XNGVideoClipViewDelegate    ===
+/* 滑动预览图片代理通知到控制器 */
+- (void)videoClipViewDidScroll:(XNGVideoClipView *)videoClipView contentOffsetX:(CGFloat)offsetX {
+    NSLog(@"-videoClipView-offsetX:%f", offsetX);
+    CMTime videoPointTime = CMTimeMake(offsetX/(KScreenWidth-26)*30*self.playerItem.currentTime.timescale, self.playerItem.currentTime.timescale);
+    [self.playerItem seekToTime:videoPointTime toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:nil];
 }
+
+- (void)videoClipViewDidEndDragging:(XNGVideoClipView *)videoClipView contentOffsetX:(CGFloat)offsetX {
+    self.startInterval = offsetX/(KScreenWidth-26)*30;
+    [self.videoClipView settingBegin:self.startInterval];
+}
+
+#pragma mark Private-Method
 
 #pragma mark >>> KVO方法
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
@@ -222,10 +273,10 @@
         if ([playerItem status] == AVPlayerStatusReadyToPlay) {
             NSLog(@"AVPlayerStatusReadyToPlay");
             CMTime duration = self.playerItem.duration;// 获取视频总长度
-//            CGFloat totalSecond = playerItem.duration.value / playerItem.duration.timescale;// 转换成秒
-//            _totalTime = [self convertTime:totalSecond];// 转换成播放时间
-//            [self customVideoSlider:duration];// 自定义UISlider外观
+            //            CGFloat totalSecond = playerItem.duration.value / playerItem.duration.timescale;// 转换成秒
+            //            [self customVideoSlider:duration];// 自定义UISlider外观
             NSLog(@"movie total duration:%f",CMTimeGetSeconds(duration));
+            _totalTime = CMTimeGetSeconds(duration); // 转换成播放时间
             [self monitoringPlayback:self.playerItem];// 监听播放状态
         } else if ([playerItem status] == AVPlayerStatusFailed) {
             NSLog(@"AVPlayerStatusFailed");
@@ -233,9 +284,10 @@
     } else if ([keyPath isEqualToString:@"loadedTimeRanges"]) {
         NSTimeInterval timeInterval = [self availableDuration];// 计算缓冲进度
         NSLog(@"Time Interval:%f",timeInterval);
-//        CMTime duration = _playerItem.duration;
-//        CGFloat totalDuration = CMTimeGetSeconds(duration);
-//        [self.videoProgress setProgress:timeInterval / totalDuration animated:YES];
+        [self analysisOfVideoKeyFramePicturesBeginTime:0.0 endTime:timeInterval];
+        //        CMTime duration = _playerItem.duration;
+        //        CGFloat totalDuration = CMTimeGetSeconds(duration);
+        //        [self.videoProgress setProgress:timeInterval / totalDuration animated:YES];
     }
 }
 
@@ -256,6 +308,7 @@
     self.playbackTimeObserver = [self.playerView.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 1) queue:NULL usingBlock:^(CMTime time) {
         CGFloat currentSecond = playerItem.currentTime.value/playerItem.currentTime.timescale;// 计算当前在第几秒
         NSLog(@"%@", [NSString stringWithFormat:@"监听播放状态：%f",currentSecond]);
+        [weakSelf.videoClipView setSliderPosition:currentSecond];
         if (currentSecond >= weakSelf.startInterval+30.f) {
             CMTime videoPointTime = CMTimeMake(weakSelf.startInterval, weakSelf.playerItem.currentTime.timescale);
             [weakSelf.playerItem seekToTime:videoPointTime toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:nil];
@@ -272,20 +325,22 @@
             weakSelf.stateImageView.alpha = 1;
         }];
     }];
-    [self.videoClipView endTimerAction];
-    [self.videoClipView sliderInitialStatus];
 }
 
 #pragma mark >>> 获取本地的视频文件URL
-// 视频原生
 - (NSURL *)getLocalVideoPath {
     NSString * path = [[NSBundle mainBundle] pathForResource:@"test" ofType:@"mp4"];
     return [NSURL fileURLWithPath:path];
 }
 
+- (NSURL *)getNetVideoUrl {
+    NSURL * url = [NSURL URLWithString:@"http://cdn-xalbum2.xiaoniangao.cn/1621069829?OSSAccessKeyId=E0RxDv7MIOlE5f1V&Expires=1543593605&Signature=RNzOJeZe8hptD136dHnSPJ71bb4%3D"];
+    return url;
+}
+
 #pragma mark 配置navigationBar相关
 - (void)navigationBarConfigure {
-
+    
     UIButton *backBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     backBtn.frame = CGRectMake(0, 0, 45, 30);
     [backBtn setImage:[UIImage imageNamed:@"left_pick"] forState:UIControlStateNormal];
@@ -329,12 +384,12 @@
     return _playerView;
 }
 
-- (AVPlayerItem *)playerItem {
-    if (!_playerItem) {
-        _playerItem = [AVPlayerItem playerItemWithURL:[self getLocalVideoPath]];
-    }
-    return _playerItem;
-}
+//- (AVPlayerItem *)playerItem {
+//    if (!_playerItem) {
+//        _playerItem = [AVPlayerItem playerItemWithURL:[self getLocalVideoPath]];
+//    }
+//    return _playerItem;
+//}
 
 - (AVPlayer *)player {
     if (!_player) {

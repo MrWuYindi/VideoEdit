@@ -25,8 +25,6 @@
 @property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
 @property (nonatomic, strong) NSMutableArray<UIImage *> * imageSource;
 
-@property (nonatomic, strong) NSTimer * timer;
-
 @end
 
 @implementation XNGVideoClipView
@@ -47,23 +45,16 @@
 
 #pragma mark Private-Method
 
-- (void)beginTimerAction {
-    self.timer = [NSTimer timerWithTimeInterval:1.0 target:self selector:@selector(settingSliderPosition:) userInfo:nil repeats:YES];
-    [[NSRunLoop currentRunLoop] addTimer:_timer forMode:NSRunLoopCommonModes];
-    [self.timer fire];
-}
-
-- (void)endTimerAction {
-    [self.timer invalidate];
-    self.timer = nil;
+- (void)setSliderPosition:(NSTimeInterval)time {
+    self.sliderLeftConstraint.constant = time/30*(KScreenWidth-27.5);
 }
 
 - (void)settingSliderPosition:(NSTimer *)timer {
-    CGFloat increment = (KScreenWidth-26)/30;
-    self.sliderLeftConstraint.constant += increment;
-    if (self.sliderLeftConstraint.constant >= (KScreenWidth-26)) {
+    CGFloat increment = (KScreenWidth-27.5)/30;
+    if (self.sliderLeftConstraint.constant >= (KScreenWidth-27.5)) {    // 如果视频播放时间小于30s 那么就不是(KScreenWidth-27.5)，这是一个bug
         [self sliderInitialStatus];
     }
+    self.sliderLeftConstraint.constant += increment;
 }
 
 - (void)sliderInitialStatus {
@@ -76,7 +67,7 @@
 }
 
 - (void)settingBegin:(NSTimeInterval)begin {
-
+    
     if (begin <= 0) {
         begin = 0;
     }
@@ -160,9 +151,9 @@
 // 配置section中的collectionViewCell的显示
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     XNGVideoClipViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:cellId forIndexPath:indexPath];
-
+    
     cell.imageView.image = self.imageSource[indexPath.row];
-
+    
     return cell;
 }
 
@@ -193,7 +184,7 @@
 // 选中操作
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     [collectionView deselectItemAtIndexPath:indexPath animated:YES];
-
+    
 }
 
 #pragma mark ========= UIScrollViewDelegate =========

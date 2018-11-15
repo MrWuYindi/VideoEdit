@@ -10,4 +10,10 @@
 
 @interface XNGVideoEditVC : UIViewController
 
+@property (nonatomic, copy) NSString * videoUrl;    // 视频的URL：没有经过剪切的原生视频
+
+@property (nonatomic, assign) NSInteger beginMusicTime;  // 毫秒
+
+@property (nonatomic, assign) NSInteger endMusicTime;    // 毫秒
+
 @end
