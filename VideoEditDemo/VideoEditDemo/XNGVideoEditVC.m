@@ -17,7 +17,7 @@
 #import <AVKit/AVKit.h>
 #import <AVFoundation/AVFoundation.h>
 
-@interface XNGVideoEditVC ()
+@interface XNGVideoEditVC ()<XNGNewVideoClipViewDelegate>
 {
     AudioState audioState;  // 向后台传值使用，暂时没有用，只是赋值了
 }
@@ -42,6 +42,13 @@
 @end
 
 @implementation XNGVideoEditVC
+
+#pragma mark XNGNewVideoClipViewDelegate
+- (void)videoClipView:(XNGNewVideoClipView *)videoClipView sliderValueDidChangedOfLeft:(double)left right:(double)right {
+    NSLog(@"--L:%f--R:%f", left, right);
+    CMTime videoPointTime = CMTimeMake(left*self.playerItem.currentTime.timescale, self.playerItem.currentTime.timescale);
+    [self.playerItem seekToTime:videoPointTime toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:nil];
+}
 
 #pragma mark Lift-Cycle
 - (void)viewDidLoad {
@@ -190,6 +197,8 @@
     self.startInterval = 0.f;   // self.beginMusicTime/1000;
     self.startToEndDuration = 30.f; // self.endMusicTime/1000 - self.startInterval
     
+    self.videoClipView.delegate = self;
+    
     self.voiceConfigView.hidden = NO;
     self.videoClipView.hidden = YES;
     
@@ -233,27 +242,6 @@
     }
 }
 
-#pragma mark 获取图片视频帧图片
-// 固定30s十张图片
-- (void)analysisOfVideoKeyFramePicturesBeginTime:(CGFloat)begin endTime:(CGFloat)end {
-    
-    dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        NSMutableArray<UIImage *> * array = [NSMutableArray<UIImage *> array];
-        
-        for (CGFloat i = begin; i <= end; i += 3) {
-            @autoreleasepool {
-                UIImage * image = [[XNGVideoEditManager shareVideoEditManager] getAsset:self.playerAsset currectTime:i];
-                if (image) {
-                    [array addObject:image];
-                }
-            }
-        }
-        dispatch_async(dispatch_get_main_queue(), ^{
-
-        });
-    });
-}
-
 #pragma mark Private-Method
 
 #pragma mark >>> KVO方法
@@ -263,8 +251,11 @@
         if ([playerItem status] == AVPlayerStatusReadyToPlay) {
             NSLog(@"AVPlayerStatusReadyToPlay");
             CMTime duration = self.playerItem.duration;// 获取视频总长度
-//            CGFloat totalSecond = playerItem.duration.value / playerItem.duration.timescale;// 转换成秒
-//            [self customVideoSlider:duration];// 自定义UISlider外观
+            CGFloat totalSecond = playerItem.duration.value / playerItem.duration.timescale;// 转换成秒
+            if (totalSecond >= 30.f) {
+                totalSecond = 30.f;
+            }
+            self.videoClipView.maxValue = totalSecond;
             NSLog(@"movie total duration:%f",CMTimeGetSeconds(duration));
             self.totalTime = CMTimeGetSeconds(duration); // 转换成播放时间
             [self monitoringPlayback:self.playerItem];// 监听播放状态
@@ -294,14 +285,14 @@
 #pragma mark >>> 监听播放状态
 - (void)monitoringPlayback:(AVPlayerItem *)playerItem {
     
-    __weak typeof(self) weakSelf = self;
+//    __weak typeof(self) weakSelf = self;
     self.playbackTimeObserver = [self.playerView.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 1) queue:NULL usingBlock:^(CMTime time) {
         CGFloat currentSecond = playerItem.currentTime.value/playerItem.currentTime.timescale;// 计算当前在第几秒
         NSLog(@"%@", [NSString stringWithFormat:@"监听播放状态：%f",currentSecond]);
-        if (currentSecond > weakSelf.startInterval+weakSelf.startToEndDuration) {
-            CMTime videoPointTime = CMTimeMake(weakSelf.startInterval, weakSelf.playerItem.currentTime.timescale);
-            [weakSelf.playerItem seekToTime:videoPointTime toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:nil];
-        }
+//        if (currentSecond > weakSelf.startInterval+weakSelf.startToEndDuration) {
+//            CMTime videoPointTime = CMTimeMake(weakSelf.startInterval, weakSelf.playerItem.currentTime.timescale);
+//            [weakSelf.playerItem seekToTime:videoPointTime toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:nil];
+//        }
     }];
 }
 
@@ -391,7 +382,7 @@
 
 - (XNGNewVideoClipView *)videoClipView {
     if (!_videoClipView) {
-        _videoClipView = [[XNGNewVideoClipView alloc] initWithFrame:CGRectMake(0, 0, KScreenWidth, 105.f) bmt:self.startInterval emt:self.startInterval + self.startInterval];
+        _videoClipView = [[XNGNewVideoClipView alloc] initWithFrame:CGRectMake(0, 0, KScreenWidth, 105.f) bmt:self.startInterval emt:self.startInterval + self.startToEndDuration];
     }
     return _videoClipView;
 }

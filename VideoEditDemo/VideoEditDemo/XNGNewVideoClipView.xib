@@ -17,7 +17,7 @@
             <subviews>
                 <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="rS7-Ki-Q8g">
                     <rect key="frame" x="5" y="50" width="365" height="45"/>
-                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="45" id="0hd-jm-nL2"/>
                     </constraints>
@@ -29,30 +29,46 @@
                     </collectionViewFlowLayout>
                 </collectionView>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Tab-i1-X4J">
-                    <rect key="frame" x="5" y="40.5" width="20" height="65"/>
-                    <color key="backgroundColor" red="0.0" green="0.97680455450000003" blue="0.0" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
+                    <rect key="frame" x="5" y="50.5" width="20" height="45"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
-                        <constraint firstAttribute="height" constant="65" id="6nP-CZ-hZP"/>
+                        <constraint firstAttribute="height" constant="45" id="6nP-CZ-hZP"/>
                         <constraint firstAttribute="width" constant="20" id="dSX-Hq-mw7"/>
                     </constraints>
-                    <state key="normal" image="Slider"/>
+                    <state key="normal" image="icon_video_thumb_handle"/>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Uhv-Bp-Iri">
-                    <rect key="frame" x="350" y="40.5" width="20" height="65"/>
-                    <color key="backgroundColor" red="0.0" green="0.97680455450000003" blue="0.0" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
+                    <rect key="frame" x="350" y="50.5" width="20" height="45"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="20" id="4Mg-rT-mSX"/>
-                        <constraint firstAttribute="height" constant="65" id="eWZ-Xm-Yn2"/>
+                        <constraint firstAttribute="height" constant="45" id="eWZ-Xm-Yn2"/>
                     </constraints>
-                    <state key="normal" image="Slider"/>
+                    <state key="normal" image="icon_video_thumb_handle"/>
                 </button>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0Ec-Sv-i8N">
+                    <rect key="frame" x="5" y="19" width="42" height="21"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <color key="textColor" red="0.99999600649999998" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OpK-m1-Rbg">
+                    <rect key="frame" x="328" y="19" width="42" height="21"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <color key="textColor" red="0.99999600649999998" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <nil key="highlightedColor"/>
+                </label>
             </subviews>
             <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
+                <constraint firstItem="rS7-Ki-Q8g" firstAttribute="top" secondItem="0Ec-Sv-i8N" secondAttribute="bottom" constant="10" id="41E-f8-47H"/>
                 <constraint firstAttribute="trailing" secondItem="rS7-Ki-Q8g" secondAttribute="trailing" constant="5" id="6Z2-IZ-aS7"/>
+                <constraint firstAttribute="trailing" secondItem="OpK-m1-Rbg" secondAttribute="trailing" constant="5" id="6h2-KK-5rl"/>
                 <constraint firstAttribute="bottom" secondItem="rS7-Ki-Q8g" secondAttribute="bottom" constant="10" id="TiK-Ik-KSf"/>
+                <constraint firstItem="0Ec-Sv-i8N" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="5" id="VNV-2A-YNl"/>
                 <constraint firstItem="rS7-Ki-Q8g" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="5" id="cx6-tv-uIf"/>
                 <constraint firstItem="Tab-i1-X4J" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="5" id="eFc-zd-ZAI"/>
+                <constraint firstItem="rS7-Ki-Q8g" firstAttribute="top" secondItem="OpK-m1-Rbg" secondAttribute="bottom" constant="10" id="tSN-Yw-izc"/>
                 <constraint firstItem="Uhv-Bp-Iri" firstAttribute="centerY" secondItem="Tab-i1-X4J" secondAttribute="centerY" id="vGw-WA-TAf"/>
                 <constraint firstItem="rS7-Ki-Q8g" firstAttribute="centerY" secondItem="Tab-i1-X4J" secondAttribute="centerY" id="vow-GR-dPB"/>
                 <constraint firstAttribute="trailing" secondItem="Uhv-Bp-Iri" secondAttribute="trailing" constant="5" id="xDa-1W-7dp"/>
@@ -61,12 +77,14 @@
             <connections>
                 <outlet property="collectionView" destination="rS7-Ki-Q8g" id="wcK-3K-bDR"/>
                 <outlet property="leftCursor" destination="Tab-i1-X4J" id="mT5-Y6-TEU"/>
+                <outlet property="leftTimeLabel" destination="0Ec-Sv-i8N" id="aIS-F9-DR2"/>
                 <outlet property="rightCursor" destination="Uhv-Bp-Iri" id="ANy-EF-tBE"/>
+                <outlet property="rightTimeLabel" destination="OpK-m1-Rbg" id="L9S-AY-LZp"/>
             </connections>
             <point key="canvasLocation" x="33.5" y="73.5"/>
         </view>
     </objects>
     <resources>
-        <image name="Slider" width="100" height="100"/>
+        <image name="icon_video_thumb_handle" width="11" height="55"/>
     </resources>
 </document>

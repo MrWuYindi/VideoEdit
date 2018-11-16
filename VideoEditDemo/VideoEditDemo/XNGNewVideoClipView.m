@@ -24,6 +24,9 @@
 @property (weak, nonatomic) IBOutlet UIImageView *centerCursor;   // 中间进度滑块 {20, 65}
 @property (weak, nonatomic) IBOutlet UIButton *rightCursor;  // 右滑块 {20, 65}
 
+@property (weak, nonatomic) IBOutlet UILabel *leftTimeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *rightTimeLabel;
+
 // 30s 一屏宽取10张图片、10s 一屏宽也去取10张图片，就是不管视频多长前30秒都取10张图片
 
 //@property (nonatomic, assign) CGFloat
@@ -37,7 +40,8 @@
 /** 右游标按钮初始值(Right cursor button value) */
 @property (nonatomic, assign) double rightValue;
 
-@property (nonatomic, assign) double lastSlidingOffsetX; // 记录上次滑动偏移量，初始化为0；
+@property (nonatomic, assign) double lastSlidingOffsetX; // collectionView 滑动相对于0.00的偏移时间差；
+@property (nonatomic, assign) double rightCursorValue;  // 右滑块value
 
 @end
 
@@ -55,6 +59,7 @@
         endTime = endTime == 0 ? 30.f : endTime;
         self.minValue = beginTime;
         self.maxValue = endTime;
+        self.rightCursorValue = self.maxValue;
         [self collectionViewConfig];
         [self addGestureRecognizer];
     }
@@ -71,7 +76,10 @@
     self.minimumSize = 1.f;
     self.leftValue = 0.0;
     self.rightValue = 30.0;
+    self.leftTimeLabel.text = [NSString stringWithFormat:@"%@", [self convertTime:self.leftValue]];
+    self.rightTimeLabel.text = [NSString stringWithFormat:@"%@", [self convertTime:self.rightValue]];
 //    self.centerCursor.hidden = YES;
+    self.alpha = 0;
     self.lastSlidingOffsetX = 0.0f;
 }
 
@@ -156,7 +164,8 @@
             }
         }
         
-        _leftValue = round((self.leftCursor.center.x-self.borderW-self.itemSize/2)/widthOfCalibration)*self.minimumSize+self.minValue;
+        _leftValue = round((self.leftCursor.center.x-self.borderW-self.itemSize/2)/widthOfCalibration)*self.minimumSize+self.minValue + self.lastSlidingOffsetX;
+        self.leftTimeLabel.text = [NSString stringWithFormat:@"%@", [self convertTime:self.leftValue]];
 
         if(self.blockOfValueDidChanged){
             self.blockOfValueDidChanged(_leftValue , _rightValue);
@@ -184,7 +193,8 @@
         }
         
         _rightValue = self.maxValue - round((self.controlWidth-self.rightCursor.center.x-self.borderW-self.itemSize/2)/widthOfCalibration)*self.minimumSize;
-        
+        self.rightTimeLabel.text = [NSString stringWithFormat:@"%@", [self convertTime:self.rightValue]];
+
         if(self.blockOfValueDidChanged){
             self.blockOfValueDidChanged(_leftValue , _rightValue);
         }
@@ -227,7 +237,7 @@
     }
     
     NSMutableArray *times = [[NSMutableArray alloc] init];
-    for (int i=1; i<actualFramesNeeded; i++){
+    for (int i=0; i<actualFramesNeeded; i++){
         CMTime time = CMTimeMakeWithSeconds(i*durationPerFrame, item.currentTime.timescale);
         [times addObject:[NSValue valueWithCMTime:time]];
     }
@@ -244,12 +254,16 @@
             } else {
                 videoScreen = [[UIImage alloc] initWithCGImage:halfWayImage];
             }
-            
-            [self.imageSource addObject:videoScreen];
+            if (videoScreen) {
+                [self.imageSource addObject:videoScreen];
+            } else {
+                [self.imageSource addObject:self.imageSource.lastObject];
+            }
             CGImageRelease(halfWayImage);
         }
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.collectionView reloadData];
+            self.alpha = 1;
         });
     });
 }
@@ -258,6 +272,19 @@
 {
     return ([[UIScreen mainScreen] respondsToSelector:@selector(displayLinkWithTarget:selector:)] &&
             ([UIScreen mainScreen].scale > 1.0));
+}
+
+#pragma mark >>> 时间戳转换
+- (NSString *)convertTime:(CGFloat)second{
+    NSDate *d = [NSDate dateWithTimeIntervalSince1970:second];
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    if (second/3600 >= 1) {
+        [formatter setDateFormat:@"HH:mm:ss"];
+    } else {
+        [formatter setDateFormat:@"mm:ss"];
+    }
+    NSString *showtimeNew = [formatter stringFromDate:d];
+    return showtimeNew;
 }
 
 #pragma mark ========= UICollectionViewDataSource =========
@@ -329,7 +356,12 @@
     _leftValue = self.minValue + round(scrollView.contentOffset.x/widthOfCalibration)*self.minimumSize;
     _rightValue = self.maxValue + round(scrollView.contentOffset.x/widthOfCalibration)*self.minimumSize;
     
-    NSLog(@"--L:%f--R:%f", _leftValue, _rightValue);
+    self.rightCursorValue = _rightValue;
+    
+    self.leftTimeLabel.text = [NSString stringWithFormat:@"%@", [self convertTime:self.leftValue]];
+    self.rightTimeLabel.text = [NSString stringWithFormat:@"%@", [self convertTime:self.rightValue]];
+    
+    self.lastSlidingOffsetX = round(scrollView.contentOffset.x/widthOfCalibration)*self.minimumSize;
     
     if(self.blockOfValueDidChanged){
         self.blockOfValueDidChanged(_leftValue , _rightValue);
