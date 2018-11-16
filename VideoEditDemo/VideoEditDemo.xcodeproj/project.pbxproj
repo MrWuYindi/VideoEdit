@@ -21,6 +21,8 @@
 		24293EA4219AB99F008958B6 /* XNGVideoEditManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 24293EA3219AB99F008958B6 /* XNGVideoEditManager.m */; };
 		24293EA7219B09AC008958B6 /* XNGVideoEditTabView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24293EA6219B09AC008958B6 /* XNGVideoEditTabView.m */; };
 		24293EA9219B09BF008958B6 /* XNGVideoEditTabView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 24293EA8219B09BF008958B6 /* XNGVideoEditTabView.xib */; };
+		242AA82B219D5E2B0053680E /* XNGNewVideoClipView.m in Sources */ = {isa = PBXBuildFile; fileRef = 242AA82A219D5E2B0053680E /* XNGNewVideoClipView.m */; };
+		242AA82D219D5E3C0053680E /* XNGNewVideoClipView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 242AA82C219D5E3C0053680E /* XNGNewVideoClipView.xib */; };
 		B1E2D117AD383D501E582F2A /* libPods-VideoEditDemo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A0F0CE346FA6923FAD5EEEF /* libPods-VideoEditDemo.a */; };
 /* End PBXBuildFile section */
 
@@ -52,6 +54,9 @@
 		24293EA5219B09AC008958B6 /* XNGVideoEditTabView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XNGVideoEditTabView.h; sourceTree = "<group>"; };
 		24293EA6219B09AC008958B6 /* XNGVideoEditTabView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XNGVideoEditTabView.m; sourceTree = "<group>"; };
 		24293EA8219B09BF008958B6 /* XNGVideoEditTabView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = XNGVideoEditTabView.xib; sourceTree = "<group>"; };
+		242AA829219D5E2B0053680E /* XNGNewVideoClipView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XNGNewVideoClipView.h; sourceTree = "<group>"; };
+		242AA82A219D5E2B0053680E /* XNGNewVideoClipView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XNGNewVideoClipView.m; sourceTree = "<group>"; };
+		242AA82C219D5E3C0053680E /* XNGNewVideoClipView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = XNGNewVideoClipView.xib; sourceTree = "<group>"; };
 		6D95C06EDDA4DA362899B82E /* Pods-VideoEditDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoEditDemo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-VideoEditDemo/Pods-VideoEditDemo.debug.xcconfig"; sourceTree = "<group>"; };
 		FE9CF6DD108381652B331000 /* Pods-VideoEditDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoEditDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-VideoEditDemo/Pods-VideoEditDemo.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -109,6 +114,9 @@
 				24293E8721997249008958B6 /* XNGVideoClipView.h */,
 				24293E8821997249008958B6 /* XNGVideoClipView.m */,
 				24293E8F2199774A008958B6 /* XNGVideoClipView.xib */,
+				242AA829219D5E2B0053680E /* XNGNewVideoClipView.h */,
+				242AA82A219D5E2B0053680E /* XNGNewVideoClipView.m */,
+				242AA82C219D5E3C0053680E /* XNGNewVideoClipView.xib */,
 				24293EA5219B09AC008958B6 /* XNGVideoEditTabView.h */,
 				24293EA6219B09AC008958B6 /* XNGVideoEditTabView.m */,
 				24293EA8219B09BF008958B6 /* XNGVideoEditTabView.xib */,
@@ -195,6 +203,7 @@
 			files = (
 				24293EA9219B09BF008958B6 /* XNGVideoEditTabView.xib in Resources */,
 				24293E71219924C2008958B6 /* Assets.xcassets in Resources */,
+				242AA82D219D5E3C0053680E /* XNGNewVideoClipView.xib in Resources */,
 				24293E8E21997739008958B6 /* XNGVoiceConfigView.xib in Resources */,
 				24293E902199774A008958B6 /* XNGVideoClipView.xib in Resources */,
 			);
@@ -235,6 +244,7 @@
 				24293E8921997249008958B6 /* XNGVideoClipView.m in Sources */,
 				24293E8621997207008958B6 /* XNGVoiceConfigView.m in Sources */,
 				24293E9C219A80AD008958B6 /* XNGVideoClipViewCell.m in Sources */,
+				242AA82B219D5E2B0053680E /* XNGNewVideoClipView.m in Sources */,
 				24293E7F21992562008958B6 /* XNGVideoEditVC.m in Sources */,
 				24293EA7219B09AC008958B6 /* XNGVideoEditTabView.m in Sources */,
 				24293E8221995F85008958B6 /* XNGPlayerView.m in Sources */,

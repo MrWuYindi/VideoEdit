@@ -9,6 +9,7 @@
 #import "XNGVideoEditVC.h"
 #import "XNGPlayerView.h"
 #import "XNGVoiceConfigView.h"
+#import "XNGNewVideoClipView.h"
 #import "XNGVideoEditTabView.h"
 #import "XNGVideoEditManager.h"
 #import "Masonry.h"
@@ -31,6 +32,7 @@
 @property (nonatomic, strong) UIImageView *stateImageView;  // 状态播放按钮
 
 @property (nonatomic, strong) XNGVoiceConfigView *voiceConfigView;
+@property (nonatomic, strong) XNGNewVideoClipView *videoClipView;
 @property (nonatomic, strong) XNGVideoEditTabView * videoEditTabView;
 
 @property (nonatomic, assign) NSTimeInterval startInterval; // 开始播放时间
@@ -116,6 +118,7 @@
     self.player = [[AVPlayer alloc]initWithPlayerItem:self.playerItem];
     self.playerView.player = self.player;
     [self.playerView.player setVolume:0];
+    [self.videoClipView addFrames:asset];
     //添加KVO
     [self observerConfigure];
 }
@@ -134,6 +137,7 @@
     [self.view addSubview:self.playerView];
     [self.playerView addSubview:self.stateImageView];
     [self.view addSubview:self.voiceConfigView];
+    [self.view addSubview:self.videoClipView];
     [self.view addSubview:self.videoEditTabView];
     
     UIEdgeInsets padding = UIEdgeInsetsMake(StatusBarH + NavigationBarH + 5, 10, TabbarH + 85.f, 10);
@@ -151,6 +155,13 @@
     }];
     
     [self.voiceConfigView mas_remakeConstraints:^(MASConstraintMaker *make) {
+        __weak typeof(self) strongSelf = weakSelf;
+        make.bottom.equalTo(strongSelf.view).with.offset(-49);
+        make.width.mas_equalTo(KScreenWidth);
+        make.height.mas_equalTo(85.f);
+    }];
+    
+    [self.videoClipView mas_remakeConstraints:^(MASConstraintMaker *make) {
         __weak typeof(self) strongSelf = weakSelf;
         make.bottom.equalTo(strongSelf.view).with.offset(-49);
         make.width.mas_equalTo(KScreenWidth);
@@ -180,13 +191,16 @@
     self.startToEndDuration = 30.f; // self.endMusicTime/1000 - self.startInterval
     
     self.voiceConfigView.hidden = NO;
+    self.videoClipView.hidden = YES;
     
     self.videoEditTabView.selectHandler = ^(VideoState state) {
         __weak typeof(self) strongSelf = weakSelf;
         if (state == VideoStateVoiceConfig) {
             strongSelf.voiceConfigView.hidden = NO;
+            strongSelf.videoClipView.hidden = YES;
         } else {
             strongSelf.voiceConfigView.hidden = YES;
+            strongSelf.videoClipView.hidden = NO;
         }
     };
 }
@@ -260,7 +274,7 @@
     } else if ([keyPath isEqualToString:@"loadedTimeRanges"]) {
         NSTimeInterval timeInterval = [self availableDuration];// 计算缓冲进度
         NSLog(@"Time Interval:%f",timeInterval);
-        [self analysisOfVideoKeyFramePicturesBeginTime:0.0 endTime:timeInterval];
+//        [self analysisOfVideoKeyFramePicturesBeginTime:0.0 endTime:timeInterval];
 //        CMTime duration = _playerItem.duration;
 //        CGFloat totalDuration = CMTimeGetSeconds(duration);
 //        [self.videoProgress setProgress:timeInterval / totalDuration animated:YES];
@@ -373,6 +387,13 @@
         _voiceConfigView = [[XNGVoiceConfigView alloc] initXNGViewWithFrame:CGRectMake(0, 0, KScreenWidth, 105.f)];
     }
     return _voiceConfigView;
+}
+
+- (XNGNewVideoClipView *)videoClipView {
+    if (!_videoClipView) {
+        _videoClipView = [[XNGNewVideoClipView alloc] initWithFrame:CGRectMake(0, 0, KScreenWidth, 105.f) bmt:self.startInterval emt:self.startInterval + self.startInterval];
+    }
+    return _videoClipView;
 }
 
 - (XNGVideoEditTabView *)videoEditTabView {

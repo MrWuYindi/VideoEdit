@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB" customClass="XNGNewVideoClipView">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="105"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="rS7-Ki-Q8g">
+                    <rect key="frame" x="5" y="50" width="365" height="45"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="45" id="0hd-jm-nL2"/>
+                    </constraints>
+                    <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="FOP-yp-Uer">
+                        <size key="itemSize" width="30" height="45"/>
+                        <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                        <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                        <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                    </collectionViewFlowLayout>
+                </collectionView>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Tab-i1-X4J">
+                    <rect key="frame" x="5" y="40.5" width="20" height="65"/>
+                    <color key="backgroundColor" red="0.0" green="0.97680455450000003" blue="0.0" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="65" id="6nP-CZ-hZP"/>
+                        <constraint firstAttribute="width" constant="20" id="dSX-Hq-mw7"/>
+                    </constraints>
+                    <state key="normal" image="Slider"/>
+                </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Uhv-Bp-Iri">
+                    <rect key="frame" x="350" y="40.5" width="20" height="65"/>
+                    <color key="backgroundColor" red="0.0" green="0.97680455450000003" blue="0.0" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="20" id="4Mg-rT-mSX"/>
+                        <constraint firstAttribute="height" constant="65" id="eWZ-Xm-Yn2"/>
+                    </constraints>
+                    <state key="normal" image="Slider"/>
+                </button>
+            </subviews>
+            <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="rS7-Ki-Q8g" secondAttribute="trailing" constant="5" id="6Z2-IZ-aS7"/>
+                <constraint firstAttribute="bottom" secondItem="rS7-Ki-Q8g" secondAttribute="bottom" constant="10" id="TiK-Ik-KSf"/>
+                <constraint firstItem="rS7-Ki-Q8g" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="5" id="cx6-tv-uIf"/>
+                <constraint firstItem="Tab-i1-X4J" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="5" id="eFc-zd-ZAI"/>
+                <constraint firstItem="Uhv-Bp-Iri" firstAttribute="centerY" secondItem="Tab-i1-X4J" secondAttribute="centerY" id="vGw-WA-TAf"/>
+                <constraint firstItem="rS7-Ki-Q8g" firstAttribute="centerY" secondItem="Tab-i1-X4J" secondAttribute="centerY" id="vow-GR-dPB"/>
+                <constraint firstAttribute="trailing" secondItem="Uhv-Bp-Iri" secondAttribute="trailing" constant="5" id="xDa-1W-7dp"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <connections>
+                <outlet property="collectionView" destination="rS7-Ki-Q8g" id="wcK-3K-bDR"/>
+                <outlet property="leftCursor" destination="Tab-i1-X4J" id="mT5-Y6-TEU"/>
+                <outlet property="rightCursor" destination="Uhv-Bp-Iri" id="ANy-EF-tBE"/>
+            </connections>
+            <point key="canvasLocation" x="33.5" y="73.5"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="Slider" width="100" height="100"/>
+    </resources>
+</document>
