@@ -67,10 +67,11 @@
 }
 
 /**
- 基础控制
+ 假数据基础控制
  */
 - (void)baseConfig {
-    
+    self.beginMusicTime = 10.0;
+    self.endMusicTime = 25.0;
 }
 
 - (void)getAssetWithURL:(NSURL *)url {
@@ -194,8 +195,8 @@
         [strongSelf voiceStateConfig:state];
     };
     
-    self.startInterval = 0.f;   // self.beginMusicTime/1000;
-    self.startToEndDuration = 30.f; // self.endMusicTime/1000 - self.startInterval
+    self.startInterval = self.beginMusicTime/1000;
+    self.startToEndDuration = self.endMusicTime/1000 - self.startInterval;
     
     self.videoClipView.delegate = self;
     
@@ -251,11 +252,7 @@
         if ([playerItem status] == AVPlayerStatusReadyToPlay) {
             NSLog(@"AVPlayerStatusReadyToPlay");
             CMTime duration = self.playerItem.duration;// 获取视频总长度
-            CGFloat totalSecond = playerItem.duration.value / playerItem.duration.timescale;// 转换成秒
-            if (totalSecond >= 30.f) {
-                totalSecond = 30.f;
-            }
-            self.videoClipView.maxValue = totalSecond;
+//            CGFloat totalSecond = playerItem.duration.value / playerItem.duration.timescale;// 转换成秒
             NSLog(@"movie total duration:%f",CMTimeGetSeconds(duration));
             self.totalTime = CMTimeGetSeconds(duration); // 转换成播放时间
             [self monitoringPlayback:self.playerItem];// 监听播放状态
@@ -314,8 +311,8 @@
 }
 
 - (NSURL *)getNetVideoUrl {
-//    NSURL * url = [NSURL URLWithString:@"http://cdn-xalbum2.xiaoniangao.cn/1621069829?OSSAccessKeyId=E0RxDv7MIOlE5f1V&Expires=1543593605&Signature=RNzOJeZe8hptD136dHnSPJ71bb4%3D"];
-    NSURL * url = [NSURL URLWithString:@"https://cdn-xalbum2.xiaoniangao.cn/1602467354?OSSAccessKeyId=E0RxDv7MIOlE5f1V&Expires=1543593605&Signature=vmI06Icw%2Fnr5RXtjtdNgab6ah5o%3D"];
+    NSURL * url = [NSURL URLWithString:@"http://cdn-xalbum2.xiaoniangao.cn/1621069829?OSSAccessKeyId=E0RxDv7MIOlE5f1V&Expires=1543593605&Signature=RNzOJeZe8hptD136dHnSPJ71bb4%3D"];
+//    NSURL * url = [NSURL URLWithString:@"https://cdn-xalbum2.xiaoniangao.cn/1602467354?OSSAccessKeyId=E0RxDv7MIOlE5f1V&Expires=1543593605&Signature=vmI06Icw%2Fnr5RXtjtdNgab6ah5o%3D"];
     return url;
 }
 
@@ -382,7 +379,7 @@
 
 - (XNGNewVideoClipView *)videoClipView {
     if (!_videoClipView) {
-        _videoClipView = [[XNGNewVideoClipView alloc] initWithFrame:CGRectMake(0, 0, KScreenWidth, 105.f) bmt:self.startInterval emt:self.startInterval + self.startToEndDuration];
+        _videoClipView = [[XNGNewVideoClipView alloc] initWithFrame:CGRectMake(0, 0, KScreenWidth, 105.f) bmt:5.f emt:10.f];
     }
     return _videoClipView;
 }

@@ -9,8 +9,9 @@
 #import "XNGNewVideoClipView.h"
 #import "XNGVideoClipViewCell.h"
 
-#define CursorBtnW 20
-#define CursorBtnH 65
+/*
+ 首先第一点，确定单位长度，单位时间的单位长度
+ */
 
 #define cellId   @"XNGVideoClipViewCellId"
 
@@ -20,17 +21,24 @@
 @property (nonatomic, strong) NSMutableArray<UIImage *> * imageSource;
 @property (strong, nonatomic) AVAssetImageGenerator *imageGenerator;
 
-@property (weak, nonatomic) IBOutlet UIButton *leftCursor;   // 左滑块 {20, 65}
-@property (weak, nonatomic) IBOutlet UIImageView *centerCursor;   // 中间进度滑块 {20, 65}
-@property (weak, nonatomic) IBOutlet UIButton *rightCursor;  // 右滑块 {20, 65}
+@property (weak, nonatomic) IBOutlet UIButton *leftCursor;   // 左滑块 {20, 45}
+@property (weak, nonatomic) IBOutlet UIImageView *centerCursor;   // 中间进度滑块 {20, 45}
+@property (weak, nonatomic) IBOutlet UIButton *rightCursor;  // 右滑块 {20, 45}
+
+// 初始位置设置原则
+/**
+ 1、不能违背一个屏幕宽最多只展示30s的原则
+ 2、视频小于30s时，下方frames占满一个屏幕宽，一个屏幕宽就是视频的长度
+ */
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *leftCursorConstraint;  // 左滑块的初始位置设置   不管最小值有没有数据，都在最左侧
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *rightCursorConstraint; // 右滑块的初始位置设置
 
 @property (weak, nonatomic) IBOutlet UILabel *leftTimeLabel;
 @property (weak, nonatomic) IBOutlet UILabel *rightTimeLabel;
 
 // 30s 一屏宽取10张图片、10s 一屏宽也去取10张图片，就是不管视频多长前30秒都取10张图片
 
-//@property (nonatomic, assign) CGFloat
-@property (nonatomic, assign) CGFloat unitLen;  // 30s运行(KScreenWidth-30)的长度，unitLen代表每秒运行的距离
+@property (nonatomic, assign) CGFloat unitLen;  // 运行(KScreenWidth-30)的长度，unitLen代表每秒运行的距离
 @property (nonatomic, assign) CGFloat itemRadius;   // 定位collectionview的中心Y
 @property (nonatomic, assign) CGFloat itemSize; // 滑块的宽度
 @property (nonatomic, assign) CGFloat borderW;  // collectionview距离边界的距离
@@ -39,9 +47,8 @@
 @property (nonatomic, assign) double leftValue;
 /** 右游标按钮初始值(Right cursor button value) */
 @property (nonatomic, assign) double rightValue;
-
-@property (nonatomic, assign) double lastSlidingOffsetX; // collectionView 滑动相对于0.00的偏移时间差；
-@property (nonatomic, assign) double rightCursorValue;  // 右滑块value
+/** 初始化collectionView 滑动相对于0.00的偏移时间差 */
+@property (nonatomic, assign) double lastSlidingOffsetX;
 
 @end
 
@@ -56,10 +63,8 @@
         self = [[NSBundle mainBundle] loadNibNamed:NSStringFromClass([self class]) owner:self options:nil][0];
         self.frame = frame;
         [self baseConfig];
-        endTime = endTime == 0 ? 30.f : endTime;
         self.minValue = beginTime;
         self.maxValue = endTime;
-        self.rightCursorValue = self.maxValue;
         [self collectionViewConfig];
         [self addGestureRecognizer];
     }
@@ -67,20 +72,18 @@
 }
 
 /**
- 基本配置
+ 基本默认配置
+ - 
  */
 - (void)baseConfig {
-    self.unitLen = (KScreenWidth-30)/30;
     self.itemSize = 20.f;
     self.borderW = 5;
-    self.minimumSize = 1.f;
-    self.leftValue = 0.0;
-    self.rightValue = 30.0;
+    self.leftValue = self.minValue;
+    self.rightValue = self.maxValue;
+    self.leftCursorConstraint.constant = self.borderW;
     self.leftTimeLabel.text = [NSString stringWithFormat:@"%@", [self convertTime:self.leftValue]];
     self.rightTimeLabel.text = [NSString stringWithFormat:@"%@", [self convertTime:self.rightValue]];
-//    self.centerCursor.hidden = YES;
     self.alpha = 0;
-    self.lastSlidingOffsetX = 0.0f;
 }
 
 /**
@@ -115,41 +118,38 @@
      */
     CGPoint point = [pan translationInView:self];
     static CGPoint center;
-    if (pan.state == UIGestureRecognizerStateBegan) {   // 识别器已经接收识别为此手势(状态)的触摸(Began)。在下一轮run循环中，响应方法将会被调用。
-        
+    if (pan.state == UIGestureRecognizerStateBegan) {
+        // 识别器已经接收识别为此手势(状态)的触摸(Began)。在下一轮run循环中，响应方法将会被调用。
         center = pan.view.center;
         //one finger
         self.leftCursor.userInteractionEnabled = (pan.view == self.leftCursor);
         self.rightCursor.userInteractionEnabled = (pan.view == self.rightCursor);
-    } else if(pan.state == UIGestureRecognizerStateEnded) {    // 识别器已经接收到触摸，并且识别为手势结束(Ended)。在下一轮run循环中，响应方法将会被调用并且识别器将会被重置到UIGestureRecognizerStatePossible状态。
+    } else if(pan.state == UIGestureRecognizerStateEnded) {
+        // 识别器已经接收到触摸，并且识别为手势结束(Ended)。在下一轮run循环中，响应方法将会被调用并且识别器将会被重置到UIGestureRecognizerStatePossible状态。
         self.leftCursor.userInteractionEnabled = YES;
         self.rightCursor.userInteractionEnabled = YES;
     }
     
     pan.view.center = CGPointMake(center.x + point.x, self.itemRadius);
     
-    NSInteger totalOfCalibration = (self.maxValue - self.minValue)/self.minimumSize;//刻度总份数
     CGFloat ineffectiveLength = self.borderW*2+self.itemSize;//无效的坐标系长度
-    CGFloat widthOfCalibration = (self.controlWidth-ineffectiveLength)/totalOfCalibration;//一个刻度的宽
     if (pan.state == UIGestureRecognizerStateEnded) {
-        /*
-         有效长度的坐标首先偏移，找整数刻度值；之后将这个整数刻度值和之前的偏移还原回坐标系统
-         */
+        // 有效长度的坐标首先偏移，找整数刻度值；之后将这个整数刻度值和之前的偏移还原回坐标系统
         if(pan.view == self.leftCursor){  // 左 Round函数返回一个数值，该数值是按照指定的小数位数进行四舍五入运算的结果。
-            CGFloat countOfCalibration = round((pan.view.center.x - self.itemSize/2 - self.borderW)/widthOfCalibration);
-            pan.view.center = CGPointMake(countOfCalibration*widthOfCalibration+ineffectiveLength/2, pan.view.center.y);
+            CGFloat countOfCalibration = round((pan.view.center.x - ineffectiveLength/2)/self.unitLen);
+            pan.view.center = CGPointMake(countOfCalibration*self.unitLen+ineffectiveLength/2, pan.view.center.y);
         }else{  // 右
-            CGFloat countOfCalibration = round((self.controlWidth - pan.view.center.x - self.itemSize/2 - self.borderW)/widthOfCalibration);
-            pan.view.center = CGPointMake(self.controlWidth - countOfCalibration*widthOfCalibration-ineffectiveLength/2, pan.view.center.y);
+            CGFloat countOfCalibration = round((self.controlWidth - pan.view.center.x - ineffectiveLength/2)/self.unitLen);
+            pan.view.center = CGPointMake(self.controlWidth - countOfCalibration*self.unitLen-ineffectiveLength/2, pan.view.center.y);
         }
     }
     
-    // 视频剪切范围是3~30s,滑块之间的距离是最少 3*widthOfCalibration
+    // 视频剪切范围是3~30s,滑块之间的距离是最少 3*self.unitLen
     if(pan.view == self.leftCursor){
         
-        if (CGRectGetMidX(self.leftCursor.frame) > CGRectGetMidX(self.rightCursor.frame) - 3*widthOfCalibration) {  // 俩滑块中间线距离小于3个单位长度
+        if (CGRectGetMidX(self.leftCursor.frame) > CGRectGetMidX(self.rightCursor.frame) - 3*self.unitLen) {  // 俩滑块中间线距离小于3个单位长度
             CGRect frame = self.leftCursor.frame;
-            frame.origin.x = CGRectGetMinX(self.rightCursor.frame) - 3*widthOfCalibration;
+            frame.origin.x = CGRectGetMinX(self.rightCursor.frame) - 3*self.unitLen;
             self.leftCursor.frame = frame;
         }else{
             if (pan.view.center.x < self.borderW + self.itemSize/2) {
@@ -164,9 +164,10 @@
             }
         }
         
-        _leftValue = round((self.leftCursor.center.x-self.borderW-self.itemSize/2)/widthOfCalibration)*self.minimumSize+self.minValue + self.lastSlidingOffsetX;
+        _leftValue = round((self.leftCursor.center.x-self.borderW-self.itemSize/2+self.collectionView.contentOffset.x)/self.unitLen);
         self.leftTimeLabel.text = [NSString stringWithFormat:@"%@", [self convertTime:self.leftValue]];
-
+        self.leftCursorConstraint.constant = self.leftCursor.center.x-self.itemSize/2;
+        
         if(self.blockOfValueDidChanged){
             self.blockOfValueDidChanged(_leftValue , _rightValue);
         }
@@ -175,9 +176,9 @@
         }
     } else {
         
-        if (CGRectGetMidX(self.rightCursor.frame) < CGRectGetMidX(self.leftCursor.frame) + 3*widthOfCalibration) {
+        if (CGRectGetMidX(self.rightCursor.frame) < CGRectGetMidX(self.leftCursor.frame) + 3*self.unitLen) {
             CGRect frame = self.rightCursor.frame;
-            frame.origin.x = CGRectGetMinX(self.leftCursor.frame) + 3*widthOfCalibration;
+            frame.origin.x = CGRectGetMinX(self.leftCursor.frame) + 3*self.unitLen;
             self.rightCursor.frame = frame;
         }else{
             if (pan.view.center.x < self.borderW + self.itemSize/2) {
@@ -192,9 +193,10 @@
             }
         }
         
-        _rightValue = self.maxValue - round((self.controlWidth-self.rightCursor.center.x-self.borderW-self.itemSize/2)/widthOfCalibration)*self.minimumSize;
+        _rightValue = round((self.rightCursor.center.x-self.borderW-self.itemSize/2+self.collectionView.contentOffset.x)/self.unitLen);
         self.rightTimeLabel.text = [NSString stringWithFormat:@"%@", [self convertTime:self.rightValue]];
-
+        self.rightCursorConstraint.constant = self.controlWidth - self.rightCursor.center.x - self.itemSize/2;
+        
         if(self.blockOfValueDidChanged){
             self.blockOfValueDidChanged(_leftValue , _rightValue);
         }
@@ -225,16 +227,30 @@
         self.imageGenerator.maximumSize = CGSizeMake((KScreenWidth-30)/10, 45);
     }
     Float64 duration = CMTimeGetSeconds([asset duration]); // 视频的长度
+    if (self.maxValue == 0.0f) {    // 原始视频文件，没有经过视频剪辑，minValue和maxValue都是0.0
+        if (duration >= 30.f) {
+            self.maxValue = 30.f;
+        } else {
+            self.maxValue = duration;
+        }
+        self.rightValue = self.maxValue;
+        self.rightTimeLabel.text = [NSString stringWithFormat:@"%@", [self convertTime:self.rightValue]];
+    }
     NSInteger actualFramesNeeded;   // 一共需要多少图片
-    Float64 durationPerFrame;   // 隔多少时间取一次图片
+    __block Float64 durationPerFrame;   // 隔多少时间取一次图片
     
-    if (duration <= 30) {
+    if (duration <= 30) {   // 如果视频长度小于等30s
         actualFramesNeeded = 10;
         durationPerFrame = duration / (actualFramesNeeded*1.0);
+        self.unitLen = (self.controlWidth - self.borderW*2 - self.itemSize) / duration; // 1s 运行的距离
     } else {
         actualFramesNeeded = duration / 3.0;
         durationPerFrame = 3.0;
+        self.unitLen = (self.controlWidth - 30) / 30; // 1s 运行的距离
     }
+    
+    self.lastSlidingOffsetX = self.minValue * self.unitLen; // 记录下初始collectionView的偏移量
+    self.rightCursorConstraint.constant = self.controlWidth - self.borderW - self.itemSize - self.unitLen*(self.maxValue-self.minValue);
     
     NSMutableArray *times = [[NSMutableArray alloc] init];
     for (int i=0; i<actualFramesNeeded; i++){
@@ -263,6 +279,8 @@
         }
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.collectionView reloadData];
+            // 根据minValue的值，初始化设置collectionView的偏移量
+            self.collectionView.contentOffset = CGPointMake(self.minValue*self.unitLen, self.collectionView.contentOffset.y);
             self.alpha = 1;
         });
     });
@@ -342,26 +360,17 @@
 
 // 当开始滚动视图时，执行该方法。一次有效滑动（开始滑动，滑动一小段距离，只要手指不松开，只算一次滑动），只执行一次。
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView{
-    
     NSLog(@"scrollViewWillBeginDragging");
 }
 
 //scrollView滚动时，就调用该方法。任何offset值改变都调用该方法。即滚动过程中，调用多次
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     
-    NSInteger totalOfCalibration = (self.maxValue - self.minValue)/self.minimumSize;//刻度总份数
-    CGFloat ineffectiveLength = self.borderW*2+self.itemSize;//无效的坐标系长度
-    CGFloat widthOfCalibration = (self.controlWidth-ineffectiveLength)/totalOfCalibration;//一个刻度的宽
+    _leftValue = round((self.leftCursor.center.x-self.borderW-self.itemSize/2+self.collectionView.contentOffset.x)/self.unitLen);
+    _rightValue = round((self.rightCursor.center.x-self.borderW-self.itemSize/2+self.collectionView.contentOffset.x)/self.unitLen);
     
-    _leftValue = self.minValue + round(scrollView.contentOffset.x/widthOfCalibration)*self.minimumSize;
-    _rightValue = self.maxValue + round(scrollView.contentOffset.x/widthOfCalibration)*self.minimumSize;
-    
-    self.rightCursorValue = _rightValue;
-    
-    self.leftTimeLabel.text = [NSString stringWithFormat:@"%@", [self convertTime:self.leftValue]];
-    self.rightTimeLabel.text = [NSString stringWithFormat:@"%@", [self convertTime:self.rightValue]];
-    
-    self.lastSlidingOffsetX = round(scrollView.contentOffset.x/widthOfCalibration)*self.minimumSize;
+    self.leftTimeLabel.text = [NSString stringWithFormat:@"%@", [self convertTime:_leftValue]];
+    self.rightTimeLabel.text = [NSString stringWithFormat:@"%@", [self convertTime:_rightValue]];
     
     if(self.blockOfValueDidChanged){
         self.blockOfValueDidChanged(_leftValue , _rightValue);
@@ -374,15 +383,19 @@
 // 滑动scrollView，并且手指离开时执行。一次有效滑动，只执行一次。
 // 当pagingEnabled属性为YES时，不调用，该方法
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset{
-    
     NSLog(@"scrollViewWillEndDragging");
-    
 }
 
 // 阻止scrollview的惯性滑动、 要在主线程执行，才有效果
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-
+//    if (decelerate)
+//    {
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//            printf("STOP IT!!\n");
+//            [scrollView setContentOffset:scrollView.contentOffset animated:NO];
+//        });
+//    }
 }
 
 #pragma mark Lazy-Load
