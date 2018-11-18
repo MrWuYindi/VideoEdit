@@ -26,4 +26,12 @@
 #define random(r, g, b, a) [UIColor colorWithRed:(r)/255.0 green:(g)/255.0 blue:(b)/255.0 alpha:(a)/255.0]
 #define randomColor random(arc4random_uniform(256), arc4random_uniform(256), arc4random_uniform(256), arc4random_uniform(256))
 
+#ifdef  OPEN_LOG
+    //__LINE__ 代表行数,  __PRETTY_FUNCTION__ 代表当前的函数名
+    #define DLOG(fmt, ...)      NSLog((@"[Line %d] %s\n" fmt), __LINE__, __PRETTY_FUNCTION__, ##__VA_ARGS__);
+#else
+    #define DLOG(fmt, ...)
+#endif
+
+
 #endif /* XNGVideoEdit_Prefix_pch */

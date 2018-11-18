@@ -45,7 +45,7 @@
 
 #pragma mark XNGNewVideoClipViewDelegate
 - (void)videoClipView:(XNGNewVideoClipView *)videoClipView sliderValueDidChangedOfLeft:(double)left right:(double)right {
-    NSLog(@"--L:%f--R:%f", left, right);
+    DLOG(@"--L:%f--R:%f", left, right);
     self.leftValue = left;
     self.rightValue = right;
     
@@ -88,22 +88,22 @@
                 break;
             case AVKeyValueStatusFailed:
             {
-//                NSLog(@"AVKeyValueStatusFailed失败,请检查网络,或查看plist中是否添加App Transport Security Settings");
+                DLOG(@"AVKeyValueStatusFailed失败,请检查网络,或查看plist中是否添加App Transport Security Settings");
             }
                 break;
             case AVKeyValueStatusCancelled:
             {
-                NSLog(@"AVKeyValueStatusCancelled取消");
+                DLOG(@"AVKeyValueStatusCancelled取消");
             }
                 break;
             case AVKeyValueStatusUnknown:
             {
-                NSLog(@"AVKeyValueStatusUnknown未知");
+                DLOG(@"AVKeyValueStatusUnknown未知");
             }
                 break;
             case AVKeyValueStatusLoading:
             {
-                NSLog(@"AVKeyValueStatusLoading正在加载");
+                DLOG(@"AVKeyValueStatusLoading正在加载");
             }
                 break;
         }
@@ -241,17 +241,17 @@
     AVPlayerItem *playerItem = (AVPlayerItem *)object;
     if ([keyPath isEqualToString:@"status"]) {
         if ([playerItem status] == AVPlayerStatusReadyToPlay) {
-            NSLog(@"AVPlayerStatusReadyToPlay");
+            DLOG(@"AVPlayerStatusReadyToPlay");
             CMTime duration = self.playerItem.duration;// 获取视频总长度
-            NSLog(@"movie total duration:%f",CMTimeGetSeconds(duration));
+            DLOG(@"movie total duration:%f",CMTimeGetSeconds(duration));
             self.totalTime = CMTimeGetSeconds(duration); // 转换成播放时间
             [self monitoringPlayback:self.playerItem];// 监听播放状态
         } else if ([playerItem status] == AVPlayerStatusFailed) {
-            NSLog(@"AVPlayerStatusFailed");
+            DLOG(@"AVPlayerStatusFailed");
         }
     } else if ([keyPath isEqualToString:@"loadedTimeRanges"]) {
         NSTimeInterval timeInterval = [self availableDuration];// 计算缓冲进度
-        NSLog(@"Time Interval:%f",timeInterval);
+        DLOG(@"Time Interval:%f",timeInterval);
 //        CMTime duration = _playerItem.duration;
 //        CGFloat totalDuration = CMTimeGetSeconds(duration);
 //        [self.videoProgress setProgress:timeInterval / totalDuration animated:YES];
@@ -274,7 +274,7 @@
     __weak typeof(self) weakSelf = self;
     self.playbackTimeObserver = [self.playerView.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 1) queue:NULL usingBlock:^(CMTime time) {
         CGFloat currentSecond = playerItem.currentTime.value/playerItem.currentTime.timescale;// 计算当前在第几秒
-        NSLog(@"%@", [NSString stringWithFormat:@"监听播放状态：%f",currentSecond]);
+        DLOG(@"%@", [NSString stringWithFormat:@"监听播放状态：%f",currentSecond]);
         [weakSelf.videoClipView setCenterCursorPosition:currentSecond];
         if (currentSecond > weakSelf.rightValue) {
             CMTime videoPointTime = CMTimeMake(weakSelf.leftValue*weakSelf.playerItem.currentTime.timescale, weakSelf.playerItem.currentTime.timescale);
@@ -285,7 +285,7 @@
 
 #pragma mark >>> 视频播放结束回调
 - (void)moviePlayDidEnd:(NSNotification *)notification {
-    NSLog(@"Play end");
+    DLOG(@"Play end");
     __weak typeof(self) weakSelf = self;
     [self.playerView.player seekToTime:kCMTimeZero completionHandler:^(BOOL finished) { // 跳转到相应的播放位置
         [UIView animateWithDuration:0.5 animations:^{
@@ -328,12 +328,10 @@
 }
 
 - (void)leftItemAction {
-    NSLog(@"----- 左侧Item按钮点击了 -----");
+
 }
 
-- (void)rightItemAction {
-    NSLog(@"----- 右侧Item按钮点击了 -----");
-    
+- (void)rightItemAction {    
     if (self.audioState == AudioStateBackground) {  // 视频原生
         // 0
     } else if (self.audioState == AudioStateSoundMixing) {  // 混音

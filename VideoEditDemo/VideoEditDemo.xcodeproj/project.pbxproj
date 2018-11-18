@@ -373,6 +373,11 @@
 				DEVELOPMENT_TEAM = HT4QVFAHAT;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/VideoEditDemo/XNGVideoEdit-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					"OPEN_LOG=1",
+				);
 				INFOPLIST_FILE = VideoEditDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

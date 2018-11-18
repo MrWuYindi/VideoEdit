@@ -192,8 +192,7 @@
 
 // 当开始滚动视图时，执行该方法。一次有效滑动（开始滑动，滑动一小段距离，只要手指不松开，只算一次滑动），只执行一次。
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView{
-    
-    NSLog(@"scrollViewWillBeginDragging");
+    DLOG(@"scrollViewWillBeginDragging");
     [self sliderInitialStatus];
 }
 
@@ -207,9 +206,7 @@
 // 滑动scrollView，并且手指离开时执行。一次有效滑动，只执行一次。
 // 当pagingEnabled属性为YES时，不调用，该方法
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset{
-    
-    NSLog(@"scrollViewWillEndDragging");
-    
+    DLOG(@"scrollViewWillEndDragging");
 }
 
 // 阻止scrollview的惯性滑动、 要在主线程执行，才有效果
