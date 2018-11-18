@@ -22,7 +22,7 @@
 @property (strong, nonatomic) AVAssetImageGenerator *imageGenerator;
 
 @property (weak, nonatomic) IBOutlet UIButton *leftCursor;   // 左滑块 {20, 45}
-@property (weak, nonatomic) IBOutlet UIImageView *centerCursor;   // 中间进度滑块 {20, 45}
+@property (weak, nonatomic) IBOutlet UIView *centerCursor;   // 中间进度滑块 {20, 45}
 @property (weak, nonatomic) IBOutlet UIButton *rightCursor;  // 右滑块 {20, 45}
 
 // 初始位置设置原则
@@ -31,6 +31,7 @@
  2、视频小于30s时，下方frames占满一个屏幕宽，一个屏幕宽就是视频的长度
  */
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *leftCursorConstraint;  // 左滑块的初始位置设置   不管最小值有没有数据，都在最左侧
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *centerCursorConstraint;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *rightCursorConstraint; // 右滑块的初始位置设置
 
 @property (weak, nonatomic) IBOutlet UILabel *leftTimeLabel;
@@ -81,6 +82,7 @@
     self.leftValue = self.minValue;
     self.rightValue = self.maxValue;
     self.leftCursorConstraint.constant = self.borderW;
+    self.centerCursorConstraint.constant = self.borderW + 8.5;
     self.leftTimeLabel.text = [NSString stringWithFormat:@"%@", [self convertTime:self.leftValue]];
     self.rightTimeLabel.text = [NSString stringWithFormat:@"%@", [self convertTime:self.rightValue]];
     self.alpha = 0;
@@ -138,35 +140,43 @@
         if(pan.view == self.leftCursor){  // 左 Round函数返回一个数值，该数值是按照指定的小数位数进行四舍五入运算的结果。
             CGFloat countOfCalibration = round((pan.view.center.x - ineffectiveLength/2)/self.unitLen);
             pan.view.center = CGPointMake(countOfCalibration*self.unitLen+ineffectiveLength/2, pan.view.center.y);
+            self.centerCursor.center = CGPointMake(countOfCalibration*self.unitLen+ineffectiveLength/2, pan.view.center.y);
         }else{  // 右
             CGFloat countOfCalibration = round((self.controlWidth - pan.view.center.x - ineffectiveLength/2)/self.unitLen);
             pan.view.center = CGPointMake(self.controlWidth - countOfCalibration*self.unitLen-ineffectiveLength/2, pan.view.center.y);
         }
     }
     
-    // 视频剪切范围是3~30s,滑块之间的距离是最少 3*self.unitLen
+    // 视频剪切范围是3~30s,滑块之间的最小距离是 3*self.unitLen
     if(pan.view == self.leftCursor){
         
         if (CGRectGetMidX(self.leftCursor.frame) > CGRectGetMidX(self.rightCursor.frame) - 3*self.unitLen) {  // 俩滑块中间线距离小于3个单位长度
             CGRect frame = self.leftCursor.frame;
             frame.origin.x = CGRectGetMinX(self.rightCursor.frame) - 3*self.unitLen;
             self.leftCursor.frame = frame;
+            
+            CGRect centerFrame = self.self.centerCursor.frame;
+            centerFrame.origin.x = CGRectGetMinX(self.rightCursor.frame) + 8.5;
+            self.centerCursor.frame = centerFrame;
         }else{
             if (pan.view.center.x < self.borderW + self.itemSize/2) {
                 CGPoint center = self.leftCursor.center;
                 center.x = self.borderW + self.itemSize/2;
                 self.leftCursor.center = center;
+                self.centerCursor.center = center;
             }
             if (pan.view.center.x > CGRectGetWidth(self.bounds)-self.borderW-self.itemSize/2) {
                 CGPoint center = self.leftCursor.center;
                 center.x = CGRectGetWidth(self.bounds)-self.borderW-self.itemSize/2;
                 self.leftCursor.center = center;
+                self.centerCursor.center = center;
             }
         }
         
         _leftValue = round((self.leftCursor.center.x-self.borderW-self.itemSize/2+self.collectionView.contentOffset.x)/self.unitLen);
         self.leftTimeLabel.text = [NSString stringWithFormat:@"%@", [self convertTime:self.leftValue]];
         self.leftCursorConstraint.constant = self.leftCursor.center.x-self.itemSize/2;
+        self.centerCursorConstraint.constant = self.leftCursor.center.x-1.5;
         
         if(self.blockOfValueDidChanged){
             self.blockOfValueDidChanged(_leftValue , _rightValue);
@@ -214,6 +224,10 @@
 - (CGFloat)controlWidth
 {
     return KScreenWidth;
+}
+
+- (void)setCenterCursorPosition:(CGFloat)time {
+    self.centerCursorConstraint.constant = (time - self.leftValue)*self.unitLen + self.leftCursor.center.x - 1.5;
 }
 
 - (void)addFrames:(AVURLAsset *)asset
@@ -319,10 +333,7 @@
 // 配置section中的collectionViewCell的显示
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     XNGVideoClipViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:cellId forIndexPath:indexPath];
-    
-//    cell.contentView.backgroundColor = randomColor;
     cell.imageView.image = self.imageSource[indexPath.row];
-    
     return cell;
 }
 
@@ -353,7 +364,6 @@
 // 选中操作
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     [collectionView deselectItemAtIndexPath:indexPath animated:YES];
-    
 }
 
 #pragma mark ========= UIScrollViewDelegate =========

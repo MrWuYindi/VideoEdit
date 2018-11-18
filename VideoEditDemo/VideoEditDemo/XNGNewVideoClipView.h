@@ -45,4 +45,6 @@ typedef void(^BlockOfValueDidChanged)(double left, double right);
  */
 - (void)addFrames:(AVURLAsset *)asset;
 
+- (void)setCenterCursorPosition:(CGFloat)time;
+
 @end

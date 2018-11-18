@@ -28,6 +28,20 @@
                         <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                     </collectionViewFlowLayout>
                 </collectionView>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Efq-ET-nos">
+                    <rect key="frame" x="13" y="50" width="3" height="45"/>
+                    <color key="backgroundColor" red="1" green="0.12549019607843137" blue="0.39215686274509803" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="45" id="srV-br-R0h"/>
+                        <constraint firstAttribute="width" constant="3" id="ubw-qm-rjc"/>
+                    </constraints>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                        <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                            <real key="value" value="1.5"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
+                </view>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Tab-i1-X4J">
                     <rect key="frame" x="5" y="50.5" width="20" height="45"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -63,6 +77,8 @@
             <constraints>
                 <constraint firstItem="rS7-Ki-Q8g" firstAttribute="top" secondItem="0Ec-Sv-i8N" secondAttribute="bottom" constant="10" id="41E-f8-47H"/>
                 <constraint firstAttribute="trailing" secondItem="rS7-Ki-Q8g" secondAttribute="trailing" constant="5" id="6Z2-IZ-aS7"/>
+                <constraint firstItem="Efq-ET-nos" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="13.5" id="BYn-2y-iTF"/>
+                <constraint firstItem="Efq-ET-nos" firstAttribute="centerY" secondItem="rS7-Ki-Q8g" secondAttribute="centerY" id="F0z-2a-dkY"/>
                 <constraint firstItem="Tab-i1-X4J" firstAttribute="centerX" secondItem="0Ec-Sv-i8N" secondAttribute="centerX" id="Ta0-YJ-rN6"/>
                 <constraint firstAttribute="bottom" secondItem="rS7-Ki-Q8g" secondAttribute="bottom" constant="10" id="TiK-Ik-KSf"/>
                 <constraint firstItem="rS7-Ki-Q8g" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="5" id="cx6-tv-uIf"/>
@@ -75,6 +91,8 @@
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <connections>
+                <outlet property="centerCursor" destination="Efq-ET-nos" id="N3E-Dd-alG"/>
+                <outlet property="centerCursorConstraint" destination="BYn-2y-iTF" id="VNs-CB-Cku"/>
                 <outlet property="collectionView" destination="rS7-Ki-Q8g" id="wcK-3K-bDR"/>
                 <outlet property="leftCursor" destination="Tab-i1-X4J" id="mT5-Y6-TEU"/>
                 <outlet property="leftCursorConstraint" destination="eFc-zd-ZAI" id="3i8-vX-9bm"/>

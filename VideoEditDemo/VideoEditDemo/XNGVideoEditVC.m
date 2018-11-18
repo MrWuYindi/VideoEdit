@@ -11,16 +11,12 @@
 #import "XNGVoiceConfigView.h"
 #import "XNGNewVideoClipView.h"
 #import "XNGVideoEditTabView.h"
-#import "XNGVideoEditManager.h"
 #import "Masonry.h"
 
 #import <AVKit/AVKit.h>
 #import <AVFoundation/AVFoundation.h>
 
 @interface XNGVideoEditVC ()<XNGNewVideoClipViewDelegate>
-{
-    AudioState audioState;  // 向后台传值使用，暂时没有用，只是赋值了
-}
 
 @property (nonatomic ,strong) XNGPlayerView *playerView;
 @property (nonatomic ,strong) AVPlayerItem *playerItem;
@@ -39,6 +35,10 @@
 @property (nonatomic, assign) NSTimeInterval totalTime; // 视频总播放时间
 @property (nonatomic, assign) NSTimeInterval startToEndDuration; // 截取后BMT与EMT的差值
 
+@property (nonatomic, assign) CGFloat leftValue;
+@property (nonatomic, assign) CGFloat rightValue;
+@property (nonatomic, assign) AudioState audioState;
+
 @end
 
 @implementation XNGVideoEditVC
@@ -46,6 +46,9 @@
 #pragma mark XNGNewVideoClipViewDelegate
 - (void)videoClipView:(XNGNewVideoClipView *)videoClipView sliderValueDidChangedOfLeft:(double)left right:(double)right {
     NSLog(@"--L:%f--R:%f", left, right);
+    self.leftValue = left;
+    self.rightValue = right;
+    
     CMTime videoPointTime = CMTimeMake(left*self.playerItem.currentTime.timescale, self.playerItem.currentTime.timescale);
     [self.playerItem seekToTime:videoPointTime toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:nil];
 }
@@ -53,7 +56,6 @@
 #pragma mark Lift-Cycle
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self baseConfig];
     [self navigationBarConfigure];
     [self layoutItemViews];
     [self getAssetWithURL:[self getNetVideoUrl]];
@@ -64,14 +66,6 @@
     [self.playerItem removeObserver:self forKeyPath:@"loadedTimeRanges" context:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem];
     [self.playerView.player removeTimeObserver:self.playbackTimeObserver];
-}
-
-/**
- 假数据基础控制
- */
-- (void)baseConfig {
-    self.beginMusicTime = 10.0;
-    self.endMusicTime = 25.0;
 }
 
 - (void)getAssetWithURL:(NSURL *)url {
@@ -87,10 +81,7 @@
             {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     if (!CMTIME_IS_INDEFINITE(self.playerAsset.duration)) {
-//                        CGFloat second = self.playerAsset.duration.value / self.playerAsset.duration.timescale;
-//                        self.controlView.totalTime = [self convertTime:second];
-//                        self.controlView.minValue = 0;
-//                        self.controlView.maxValue = second;
+
                     }
                 });
             }
@@ -231,7 +222,7 @@
 
 - (void)voiceStateConfig:(AudioState)state {
     
-    audioState = state;
+    self.audioState = state;
     
     // 预览视频播放，不涉及制作，将用户选项记录到本地
     if (state == AudioStateBackground) {    // 背景音乐
@@ -252,7 +243,6 @@
         if ([playerItem status] == AVPlayerStatusReadyToPlay) {
             NSLog(@"AVPlayerStatusReadyToPlay");
             CMTime duration = self.playerItem.duration;// 获取视频总长度
-//            CGFloat totalSecond = playerItem.duration.value / playerItem.duration.timescale;// 转换成秒
             NSLog(@"movie total duration:%f",CMTimeGetSeconds(duration));
             self.totalTime = CMTimeGetSeconds(duration); // 转换成播放时间
             [self monitoringPlayback:self.playerItem];// 监听播放状态
@@ -262,7 +252,6 @@
     } else if ([keyPath isEqualToString:@"loadedTimeRanges"]) {
         NSTimeInterval timeInterval = [self availableDuration];// 计算缓冲进度
         NSLog(@"Time Interval:%f",timeInterval);
-//        [self analysisOfVideoKeyFramePicturesBeginTime:0.0 endTime:timeInterval];
 //        CMTime duration = _playerItem.duration;
 //        CGFloat totalDuration = CMTimeGetSeconds(duration);
 //        [self.videoProgress setProgress:timeInterval / totalDuration animated:YES];
@@ -282,14 +271,15 @@
 #pragma mark >>> 监听播放状态
 - (void)monitoringPlayback:(AVPlayerItem *)playerItem {
     
-//    __weak typeof(self) weakSelf = self;
+    __weak typeof(self) weakSelf = self;
     self.playbackTimeObserver = [self.playerView.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 1) queue:NULL usingBlock:^(CMTime time) {
         CGFloat currentSecond = playerItem.currentTime.value/playerItem.currentTime.timescale;// 计算当前在第几秒
         NSLog(@"%@", [NSString stringWithFormat:@"监听播放状态：%f",currentSecond]);
-//        if (currentSecond > weakSelf.startInterval+weakSelf.startToEndDuration) {
-//            CMTime videoPointTime = CMTimeMake(weakSelf.startInterval, weakSelf.playerItem.currentTime.timescale);
-//            [weakSelf.playerItem seekToTime:videoPointTime toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:nil];
-//        }
+        [weakSelf.videoClipView setCenterCursorPosition:currentSecond];
+        if (currentSecond > weakSelf.rightValue) {
+            CMTime videoPointTime = CMTimeMake(weakSelf.leftValue*weakSelf.playerItem.currentTime.timescale, weakSelf.playerItem.currentTime.timescale);
+            [weakSelf.playerItem seekToTime:videoPointTime toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:nil];
+        }
     }];
 }
 
@@ -304,15 +294,9 @@
     }];
 }
 
-#pragma mark >>> 获取本地的视频文件URL
-- (NSURL *)getLocalVideoPath {
-    NSString * path = [[NSBundle mainBundle] pathForResource:@"test" ofType:@"mp4"];
-    return [NSURL fileURLWithPath:path];
-}
-
 - (NSURL *)getNetVideoUrl {
-    NSURL * url = [NSURL URLWithString:@"http://cdn-xalbum2.xiaoniangao.cn/1621069829?OSSAccessKeyId=E0RxDv7MIOlE5f1V&Expires=1543593605&Signature=RNzOJeZe8hptD136dHnSPJ71bb4%3D"];
-//    NSURL * url = [NSURL URLWithString:@"https://cdn-xalbum2.xiaoniangao.cn/1602467354?OSSAccessKeyId=E0RxDv7MIOlE5f1V&Expires=1543593605&Signature=vmI06Icw%2Fnr5RXtjtdNgab6ah5o%3D"];
+//    NSURL * url = [NSURL URLWithString:@"http://cdn-xalbum2.xiaoniangao.cn/1621069829?OSSAccessKeyId=E0RxDv7MIOlE5f1V&Expires=1543593605&Signature=RNzOJeZe8hptD136dHnSPJ71bb4%3D"];
+    NSURL * url = [NSURL URLWithString:@"https://cdn-xalbum2.xiaoniangao.cn/1602467354?OSSAccessKeyId=E0RxDv7MIOlE5f1V&Expires=1543593605&Signature=vmI06Icw%2Fnr5RXtjtdNgab6ah5o%3D"];
     return url;
 }
 
@@ -349,6 +333,17 @@
 
 - (void)rightItemAction {
     NSLog(@"----- 右侧Item按钮点击了 -----");
+    
+    if (self.audioState == AudioStateBackground) {  // 视频原生
+        // 0
+    } else if (self.audioState == AudioStateSoundMixing) {  // 混音
+        // 0.7
+    } else {    // AudioStateVideoNative: 视频原生
+        // 1
+    }
+//    self.leftValue
+//    self.rightValue
+    
 }
 
 #pragma mark Lazy-Load
@@ -379,7 +374,7 @@
 
 - (XNGNewVideoClipView *)videoClipView {
     if (!_videoClipView) {
-        _videoClipView = [[XNGNewVideoClipView alloc] initWithFrame:CGRectMake(0, 0, KScreenWidth, 105.f) bmt:5.f emt:10.f];
+        _videoClipView = [[XNGNewVideoClipView alloc] initWithFrame:CGRectMake(0, 0, KScreenWidth, 105.f) bmt:self.beginMusicTime/1000.f emt:self.endMusicTime/1000.f];
     }
     return _videoClipView;
 }
