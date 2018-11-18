@@ -13,12 +13,9 @@
 		24293E7F21992562008958B6 /* XNGVideoEditVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 24293E7E21992562008958B6 /* XNGVideoEditVC.m */; };
 		24293E8221995F85008958B6 /* XNGPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24293E8121995F85008958B6 /* XNGPlayerView.m */; };
 		24293E8621997207008958B6 /* XNGVoiceConfigView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24293E8521997207008958B6 /* XNGVoiceConfigView.m */; };
-		24293E8921997249008958B6 /* XNGVideoClipView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24293E8821997249008958B6 /* XNGVideoClipView.m */; };
 		24293E8E21997739008958B6 /* XNGVoiceConfigView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 24293E8D21997739008958B6 /* XNGVoiceConfigView.xib */; };
-		24293E902199774A008958B6 /* XNGVideoClipView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 24293E8F2199774A008958B6 /* XNGVideoClipView.xib */; };
 		24293E95219993D6008958B6 /* XNGVideoEditNavVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 24293E94219993D6008958B6 /* XNGVideoEditNavVC.m */; };
 		24293E9C219A80AD008958B6 /* XNGVideoClipViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 24293E9B219A80AD008958B6 /* XNGVideoClipViewCell.m */; };
-		24293EA4219AB99F008958B6 /* XNGVideoEditManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 24293EA3219AB99F008958B6 /* XNGVideoEditManager.m */; };
 		24293EA7219B09AC008958B6 /* XNGVideoEditTabView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24293EA6219B09AC008958B6 /* XNGVideoEditTabView.m */; };
 		24293EA9219B09BF008958B6 /* XNGVideoEditTabView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 24293EA8219B09BF008958B6 /* XNGVideoEditTabView.xib */; };
 		242AA82B219D5E2B0053680E /* XNGNewVideoClipView.m in Sources */ = {isa = PBXBuildFile; fileRef = 242AA82A219D5E2B0053680E /* XNGNewVideoClipView.m */; };
@@ -40,17 +37,12 @@
 		24293E8121995F85008958B6 /* XNGPlayerView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XNGPlayerView.m; sourceTree = "<group>"; };
 		24293E8421997207008958B6 /* XNGVoiceConfigView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XNGVoiceConfigView.h; sourceTree = "<group>"; };
 		24293E8521997207008958B6 /* XNGVoiceConfigView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XNGVoiceConfigView.m; sourceTree = "<group>"; };
-		24293E8721997249008958B6 /* XNGVideoClipView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XNGVideoClipView.h; sourceTree = "<group>"; };
-		24293E8821997249008958B6 /* XNGVideoClipView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XNGVideoClipView.m; sourceTree = "<group>"; };
 		24293E8D21997739008958B6 /* XNGVoiceConfigView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = XNGVoiceConfigView.xib; sourceTree = "<group>"; };
-		24293E8F2199774A008958B6 /* XNGVideoClipView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = XNGVideoClipView.xib; sourceTree = "<group>"; };
 		24293E93219993D6008958B6 /* XNGVideoEditNavVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XNGVideoEditNavVC.h; sourceTree = "<group>"; };
 		24293E94219993D6008958B6 /* XNGVideoEditNavVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XNGVideoEditNavVC.m; sourceTree = "<group>"; };
 		24293E9921999A1E008958B6 /* XNGVideoEdit-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XNGVideoEdit-Prefix.pch"; sourceTree = "<group>"; };
 		24293E9A219A80AD008958B6 /* XNGVideoClipViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XNGVideoClipViewCell.h; sourceTree = "<group>"; };
 		24293E9B219A80AD008958B6 /* XNGVideoClipViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XNGVideoClipViewCell.m; sourceTree = "<group>"; };
-		24293EA2219AB99F008958B6 /* XNGVideoEditManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XNGVideoEditManager.h; sourceTree = "<group>"; };
-		24293EA3219AB99F008958B6 /* XNGVideoEditManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XNGVideoEditManager.m; sourceTree = "<group>"; };
 		24293EA5219B09AC008958B6 /* XNGVideoEditTabView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XNGVideoEditTabView.h; sourceTree = "<group>"; };
 		24293EA6219B09AC008958B6 /* XNGVideoEditTabView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XNGVideoEditTabView.m; sourceTree = "<group>"; };
 		24293EA8219B09BF008958B6 /* XNGVideoEditTabView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = XNGVideoEditTabView.xib; sourceTree = "<group>"; };
@@ -111,17 +103,12 @@
 				24293E8D21997739008958B6 /* XNGVoiceConfigView.xib */,
 				24293E9A219A80AD008958B6 /* XNGVideoClipViewCell.h */,
 				24293E9B219A80AD008958B6 /* XNGVideoClipViewCell.m */,
-				24293E8721997249008958B6 /* XNGVideoClipView.h */,
-				24293E8821997249008958B6 /* XNGVideoClipView.m */,
-				24293E8F2199774A008958B6 /* XNGVideoClipView.xib */,
 				242AA829219D5E2B0053680E /* XNGNewVideoClipView.h */,
 				242AA82A219D5E2B0053680E /* XNGNewVideoClipView.m */,
 				242AA82C219D5E3C0053680E /* XNGNewVideoClipView.xib */,
 				24293EA5219B09AC008958B6 /* XNGVideoEditTabView.h */,
 				24293EA6219B09AC008958B6 /* XNGVideoEditTabView.m */,
 				24293EA8219B09BF008958B6 /* XNGVideoEditTabView.xib */,
-				24293EA2219AB99F008958B6 /* XNGVideoEditManager.h */,
-				24293EA3219AB99F008958B6 /* XNGVideoEditManager.m */,
 				24293E7D21992562008958B6 /* XNGVideoEditVC.h */,
 				24293E7E21992562008958B6 /* XNGVideoEditVC.m */,
 				24293E93219993D6008958B6 /* XNGVideoEditNavVC.h */,
@@ -205,7 +192,6 @@
 				24293E71219924C2008958B6 /* Assets.xcassets in Resources */,
 				242AA82D219D5E3C0053680E /* XNGNewVideoClipView.xib in Resources */,
 				24293E8E21997739008958B6 /* XNGVoiceConfigView.xib in Resources */,
-				24293E902199774A008958B6 /* XNGVideoClipView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -237,11 +223,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				24293EA4219AB99F008958B6 /* XNGVideoEditManager.m in Sources */,
 				24293E95219993D6008958B6 /* XNGVideoEditNavVC.m in Sources */,
 				24293E77219924C2008958B6 /* main.m in Sources */,
 				24293E69219924C0008958B6 /* AppDelegate.m in Sources */,
-				24293E8921997249008958B6 /* XNGVideoClipView.m in Sources */,
 				24293E8621997207008958B6 /* XNGVoiceConfigView.m in Sources */,
 				24293E9C219A80AD008958B6 /* XNGVideoClipViewCell.m in Sources */,
 				242AA82B219D5E2B0053680E /* XNGNewVideoClipView.m in Sources */,
