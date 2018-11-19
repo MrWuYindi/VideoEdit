@@ -45,6 +45,13 @@ typedef void(^BlockOfValueDidChanged)(double left, double right);
  */
 - (void)addFrames:(AVURLAsset *)asset;
 
+/** 播放进度滑块 方法1 */
 - (void)setCenterCursorPosition:(CGFloat)time;
+
+
+/** 播放进度滑块 方法2 */
+- (void)beginTimerAction;
+- (void)endTimerAction;
+- (void)sliderInitialStatus;
 
 @end

@@ -51,9 +51,14 @@
 /** 初始化collectionView 滑动相对于0.00的偏移时间差 */
 @property (nonatomic, assign) double lastSlidingOffsetX;
 
+@property (nonatomic, strong) NSTimer * timer;
+
 @end
 
-@implementation XNGNewVideoClipView
+@implementation XNGNewVideoClipView {
+    NSInteger index; // 初始化控制collectionView不能设置contentoffset时，需要滑动滑块的局部变量
+    CGFloat centerCursorLoction;  // 进度滑块距离左边的constant
+}
 
 - (instancetype)initWithFrame:(CGRect)frame
                           bmt:(CGFloat)beginTime
@@ -82,10 +87,12 @@
     self.leftValue = self.minValue;
     self.rightValue = self.maxValue;
     self.leftCursorConstraint.constant = self.borderW;
-    self.centerCursorConstraint.constant = self.borderW + 8.5;
+    centerCursorLoction = self.leftCursorConstraint.constant+8.5;
+    self.centerCursorConstraint.constant = self.borderW + 10;
     self.leftTimeLabel.text = [NSString stringWithFormat:@"%@", [self convertTime:self.leftValue]];
     self.rightTimeLabel.text = [NSString stringWithFormat:@"%@", [self convertTime:self.rightValue]];
     self.alpha = 0;
+    index =  0;
 }
 
 /**
@@ -176,7 +183,8 @@
         _leftValue = round((self.leftCursor.center.x-self.borderW-self.itemSize/2+self.collectionView.contentOffset.x)/self.unitLen);
         self.leftTimeLabel.text = [NSString stringWithFormat:@"%@", [self convertTime:self.leftValue]];
         self.leftCursorConstraint.constant = self.leftCursor.center.x-self.itemSize/2;
-        self.centerCursorConstraint.constant = self.leftCursor.center.x-1.5;
+        self.centerCursorConstraint.constant = self.leftCursor.center.x;
+        centerCursorLoction = self.leftCursorConstraint.constant+8.5;
         
         if(self.blockOfValueDidChanged){
             self.blockOfValueDidChanged(_leftValue , _rightValue);
@@ -227,7 +235,37 @@
 }
 
 - (void)setCenterCursorPosition:(CGFloat)time {
-    self.centerCursorConstraint.constant = (time - self.leftValue)*self.unitLen + self.leftCursor.center.x - 1.5;
+    if (time == 0 || time < self.leftValue) {
+        time = self.leftValue;
+    }
+    if (time > self.rightValue) {
+        time = self.rightValue;
+    }
+    self.centerCursorConstraint.constant = (time - self.leftValue)*self.unitLen + self.leftCursor.center.x;
+}
+
+- (void)beginTimerAction {
+    self.timer = [NSTimer timerWithTimeInterval:1.0/60.0 target:self selector:@selector(settingSliderPosition:) userInfo:nil repeats:YES];
+    self.centerCursorConstraint.constant = centerCursorLoction;
+    [[NSRunLoop currentRunLoop] addTimer:_timer forMode:NSRunLoopCommonModes];
+    [self.timer fire];
+}
+
+- (void)endTimerAction {
+    [self.timer invalidate];
+    self.timer = nil;
+    centerCursorLoction = self.centerCursorConstraint.constant;
+}
+
+- (void)sliderInitialStatus {
+    self.centerCursorConstraint.constant = self.leftCursor.center.x;
+}
+
+- (void)settingSliderPosition:(NSTimer *)timer {
+    self.centerCursorConstraint.constant += (self.rightCursor.center.x-self.leftCursor.center.x-self.borderW*2-self.itemSize)/(self.rightValue-self.leftValue)/60.0;
+    if (self.centerCursorConstraint.constant >= self.rightCursor.center.x) {
+        [self sliderInitialStatus];
+    }
 }
 
 - (void)addFrames:(AVURLAsset *)asset
@@ -293,7 +331,7 @@
         }
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.collectionView reloadData];
-            // 根据minValue的值，初始化设置collectionView的偏移量
+            // 根据minValue的值，初始化设置collectionView的偏移量,如果collectionview没有滑动，那么滑动滑块
             self.collectionView.contentOffset = CGPointMake(self.minValue*self.unitLen, self.collectionView.contentOffset.y);
             self.alpha = 1;
         });
@@ -375,12 +413,29 @@
 
 //scrollView滚动时，就调用该方法。任何offset值改变都调用该方法。即滚动过程中，调用多次
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    index ++;
+    if (index ==2)
+    {
+        CGPoint leftCenter = self.leftCursor.center;
+        leftCenter = CGPointMake(self.minValue*self.unitLen-self.collectionView.contentOffset.x + leftCenter.x, leftCenter.y);
+        self.leftCursor.center = leftCenter;
+        self.leftCursorConstraint.constant = self.leftCursor.center.x-self.itemSize/2;
+        self.centerCursorConstraint.constant = self.leftCursor.center.x;
+        centerCursorLoction = self.leftCursorConstraint.constant+8.5;
+
+        CGPoint rightCenter = self.rightCursor.center;
+        rightCenter = CGPointMake(self.minValue*self.unitLen-self.collectionView.contentOffset.x + rightCenter.x, leftCenter.y);
+        self.rightCursor.center = rightCenter;
+        self.rightCursorConstraint.constant = self.controlWidth - self.rightCursor.center.x - self.itemSize/2;
+    }
     
     _leftValue = round((self.leftCursor.center.x-self.borderW-self.itemSize/2+self.collectionView.contentOffset.x)/self.unitLen);
     _rightValue = round((self.rightCursor.center.x-self.borderW-self.itemSize/2+self.collectionView.contentOffset.x)/self.unitLen);
     
     self.leftTimeLabel.text = [NSString stringWithFormat:@"%@", [self convertTime:_leftValue]];
     self.rightTimeLabel.text = [NSString stringWithFormat:@"%@", [self convertTime:_rightValue]];
+    
+    [self sliderInitialStatus];
     
     if(self.blockOfValueDidChanged){
         self.blockOfValueDidChanged(_leftValue , _rightValue);

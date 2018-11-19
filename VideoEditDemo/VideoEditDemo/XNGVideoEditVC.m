@@ -12,6 +12,7 @@
 #import "XNGNewVideoClipView.h"
 #import "XNGVideoEditTabView.h"
 #import "Masonry.h"
+#import "MBProgressHUD.h"
 
 #import <AVKit/AVKit.h>
 #import <AVFoundation/AVFoundation.h>
@@ -59,6 +60,7 @@
     [self navigationBarConfigure];
     [self layoutItemViews];
     [self getAssetWithURL:[self getNetVideoUrl]];
+//    [self getAssetWithURL:[NSURL URLWithString:self.videoUrl]];
 }
 
 - (void)dealloc {
@@ -212,11 +214,13 @@
         [UIView animateWithDuration:0.5 animations:^{
             self.stateImageView.alpha = 0;
         }];
+        [self.videoClipView beginTimerAction];
     } else {
         [self.playerView.player pause];
         [UIView animateWithDuration:0.5 animations:^{
             self.stateImageView.alpha = 1;
         }];
+        [self.videoClipView endTimerAction];
     }
 }
 
@@ -275,11 +279,12 @@
     self.playbackTimeObserver = [self.playerView.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 1) queue:NULL usingBlock:^(CMTime time) {
         CGFloat currentSecond = playerItem.currentTime.value/playerItem.currentTime.timescale;// 计算当前在第几秒
         DLOG(@"%@", [NSString stringWithFormat:@"监听播放状态：%f",currentSecond]);
-        [weakSelf.videoClipView setCenterCursorPosition:currentSecond];
         if (currentSecond > weakSelf.rightValue) {
             CMTime videoPointTime = CMTimeMake(weakSelf.leftValue*weakSelf.playerItem.currentTime.timescale, weakSelf.playerItem.currentTime.timescale);
             [weakSelf.playerItem seekToTime:videoPointTime toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:nil];
+            [weakSelf.videoClipView sliderInitialStatus];
         }
+//        [weakSelf.videoClipView setCenterCursorPosition:currentSecond];
     }];
 }
 
@@ -372,7 +377,8 @@
 
 - (XNGNewVideoClipView *)videoClipView {
     if (!_videoClipView) {
-        _videoClipView = [[XNGNewVideoClipView alloc] initWithFrame:CGRectMake(0, 0, KScreenWidth, 105.f) bmt:self.beginMusicTime/1000.f emt:self.endMusicTime/1000.f];
+//        _videoClipView = [[XNGNewVideoClipView alloc] initWithFrame:CGRectMake(0, 0, KScreenWidth, 105.f) bmt:self.beginMusicTime/1000.f emt:self.endMusicTime/1000.f];
+        _videoClipView = [[XNGNewVideoClipView alloc] initWithFrame:CGRectMake(0, 0, KScreenWidth, 105.f) bmt:2.f emt:9.f];
     }
     return _videoClipView;
 }
