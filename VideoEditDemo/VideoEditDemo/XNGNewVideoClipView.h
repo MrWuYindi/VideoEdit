@@ -13,7 +13,7 @@ typedef void(^BlockOfValueDidChanged)(double left, double right);
 
 @class XNGNewVideoClipView;
 @protocol XNGNewVideoClipViewDelegate <NSObject>
-- (void)videoClipView:(XNGNewVideoClipView *)videoClipView sliderValueDidChangedOfLeft:(double)left right:(double)right;
+- (void)videoClipView:(XNGNewVideoClipView *)videoClipView sliderValueDidChangedOfLeft:(double)left right:(double)right isCursor:(BOOL)isC;
 @end
 
 @interface XNGNewVideoClipView : UIView

@@ -45,10 +45,19 @@
 @implementation XNGVideoEditVC
 
 #pragma mark XNGNewVideoClipViewDelegate
-- (void)videoClipView:(XNGNewVideoClipView *)videoClipView sliderValueDidChangedOfLeft:(double)left right:(double)right {
+- (void)videoClipView:(XNGNewVideoClipView *)videoClipView sliderValueDidChangedOfLeft:(double)left right:(double)right isCursor:(BOOL)isC {
     DLOG(@"--L:%f--R:%f", left, right);
     self.leftValue = left;
     self.rightValue = right;
+    
+    if (isC) {
+        [self.playerView.player pause];
+        [UIView animateWithDuration:0.5 animations:^{
+            self.stateImageView.alpha = 1;
+        }];
+        [self.videoClipView sliderInitialStatus];
+        [self.videoClipView endTimerAction];
+    }
     
     CMTime videoPointTime = CMTimeMake(left*self.playerItem.currentTime.timescale, self.playerItem.currentTime.timescale);
     [self.playerItem seekToTime:videoPointTime toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:nil];

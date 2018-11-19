@@ -189,8 +189,8 @@
         if(self.blockOfValueDidChanged){
             self.blockOfValueDidChanged(_leftValue , _rightValue);
         }
-        if([self.delegate respondsToSelector:@selector(videoClipView:sliderValueDidChangedOfLeft:right:)]){
-            [self.delegate videoClipView:self sliderValueDidChangedOfLeft:_leftValue right:_rightValue];
+        if([self.delegate respondsToSelector:@selector(videoClipView:sliderValueDidChangedOfLeft:right:isCursor:)]){
+            [self.delegate videoClipView:self sliderValueDidChangedOfLeft:_leftValue right:_rightValue isCursor:YES];
         }
     } else {
         
@@ -218,8 +218,8 @@
         if(self.blockOfValueDidChanged){
             self.blockOfValueDidChanged(_leftValue , _rightValue);
         }
-        if([self.delegate respondsToSelector:@selector(videoClipView:sliderValueDidChangedOfLeft:right:)]){
-            [self.delegate videoClipView:self sliderValueDidChangedOfLeft:_leftValue right:_rightValue];
+        if([self.delegate respondsToSelector:@selector(videoClipView:sliderValueDidChangedOfLeft:right:isCursor:)]){
+            [self.delegate videoClipView:self sliderValueDidChangedOfLeft:_leftValue right:_rightValue isCursor:YES];
         }
     }
 }
@@ -440,8 +440,8 @@
     if(self.blockOfValueDidChanged){
         self.blockOfValueDidChanged(_leftValue , _rightValue);
     }
-    if([self.delegate respondsToSelector:@selector(videoClipView:sliderValueDidChangedOfLeft:right:)]){
-        [self.delegate videoClipView:self sliderValueDidChangedOfLeft:_leftValue right:_rightValue];
+    if([self.delegate respondsToSelector:@selector(videoClipView:sliderValueDidChangedOfLeft:right:isCursor:)]){
+        [self.delegate videoClipView:self sliderValueDidChangedOfLeft:_leftValue right:_rightValue isCursor:NO];
     }
 }
 
