@@ -68,8 +68,8 @@
     [super viewDidLoad];
     [self navigationBarConfigure];
     [self layoutItemViews];
-    [self getAssetWithURL:[self getNetVideoUrl]];
-//    [self getAssetWithURL:[NSURL URLWithString:self.videoUrl]];
+//    [self getAssetWithURL:[self getNetVideoUrl]];
+    [self getAssetWithURL:[NSURL URLWithString:self.videoUrl]];
 }
 
 - (void)dealloc {
@@ -83,6 +83,8 @@
     NSDictionary *options = @{ AVURLAssetPreferPreciseDurationAndTimingKey : @YES };
     self.playerAsset = [[AVURLAsset alloc]initWithURL:url options:options];
     NSArray *keys = @[@"duration"];
+    
+    [MBProgressHUD showHUDAddedTo:self.view animated:YES];
     
     [self.playerAsset loadValuesAsynchronouslyForKeys:keys completionHandler:^{
         NSError *error = nil;
@@ -259,15 +261,18 @@
             DLOG(@"movie total duration:%f",CMTimeGetSeconds(duration));
             self.totalTime = CMTimeGetSeconds(duration); // 转换成播放时间
             [self monitoringPlayback:self.playerItem];// 监听播放状态
-        } else if ([playerItem status] == AVPlayerStatusFailed) {
+        } else if ([playerItem status] == AVPlayerStatusFailed || [playerItem status] == AVPlayerStatusUnknown) {
             DLOG(@"AVPlayerStatusFailed");
+            [self.player pause];
         }
     } else if ([keyPath isEqualToString:@"loadedTimeRanges"]) {
         NSTimeInterval timeInterval = [self availableDuration];// 计算缓冲进度
         DLOG(@"Time Interval:%f",timeInterval);
-//        CMTime duration = _playerItem.duration;
-//        CGFloat totalDuration = CMTimeGetSeconds(duration);
-//        [self.videoProgress setProgress:timeInterval / totalDuration animated:YES];
+        CMTime duration = _playerItem.duration;
+        CGFloat totalDuration = CMTimeGetSeconds(duration);
+        if (timeInterval/totalDuration >= 1.f) {
+            [MBProgressHUD hideHUDForView:self.view animated:YES];
+        }
     }
 }
 
